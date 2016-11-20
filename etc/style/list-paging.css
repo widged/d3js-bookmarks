@@ -1,0 +1,17 @@
+list-paging {
+  display: flex;
+  flex-direction: row;
+  flex-flow: nowrap;
+  font-size: 9px;
+  color: #0095f5;
+}
+
+list-paging > item {
+  background-color: #daf2fe;
+  border: 1px solid #0095f5;
+  border-radius: 3px;
+  width: 24px;
+  margin: 0px 2px;
+  text-align: center;
+
+}

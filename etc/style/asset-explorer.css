@@ -1,0 +1,107 @@
+body {
+  font-family: 'Monaco', arial;
+}
+asset-explorer {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+asset-explorer assets {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+
+}
+
+
+
+asset-explorer tags {
+  display: block;
+  font-size: 8px;
+}
+
+asset-explorer tags item {
+  display: inline-block;
+  padding: 0px 2px;
+
+}
+
+asset-explorer .asset-item {
+  display: flex;
+  flex-flow: row;
+  font-size: 8px;
+}
+
+
+
+asset-explorer .asset-item .traits removable {
+  background-color: #daf2fe;
+}
+
+asset-explorer .asset-item .terms removable {
+  background-color: #fffab4;
+}
+
+asset-explorer .to-add {
+  background-color: white;
+  position: fixed;
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+}
+
+rows {
+  display: flex;
+  flex-flow: row;
+}
+
+spacer {
+  font-size: 1px;
+  min-height: 1px;
+  display: block;
+}
+
+.status-bar {
+  position:fixed;
+  bottom: 0;
+  background-color: #f2f2f2;
+  width: 100%;
+  font-size: 8px;
+  font-family: monospace;
+  }
+
+
+
+asset-explorer item-query {
+  display: flex;
+  flex-direction: row;
+  flex-flow: nowrap;
+}
+
+asset-explorer item-query > * {
+  padding: 0 9px;
+}
+
+removable-items item,
+.tagged.tags item  {
+  font-size: 8px;
+
+}
+#tags removable-items item,
+item-list .tagged.tags item {
+  background: #d9efee;
+  border: 1px solid #6dc2b8;
+}
+
+
+#terms removable-items item,
+item-list .tagged.terms item {
+  background: #f0ddf3;
+  border: 1px solid #a386d5;
+}
+
+item-list .tagged.others item {
+  background: #f8fbe0;
+  border: 1px solid #e0ee86;
+}

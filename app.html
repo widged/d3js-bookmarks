@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="etc/style/asset-explorer.css">
+	<link rel="stylesheet" href="etc/style/multi-select.css">
+	<link rel="stylesheet" href="etc/style/list-paging.css">
+	<link rel="stylesheet" href="etc/style/item-list.css">
+</head>
+<body>
+
+		<asset-explorer>
+			<item-query>
+				<div id="tags"> </div>
+				<div id="terms"> </div>
+			</item-query>
+			<item-list id="itemList"></item-list>
+			<list-paging id="pagination"></list-paging>
+		</asset-explorer>
+
+	<script src="src/xhr.js"></script>
+	<script src="src/paging-algorithm.js"></script>
+	<script src="src/StateManager.js"></script>
+	<script src="src/PageNavigator.js"></script>
+	<script src="src/ItemList.js"></script>
+	<script src="src/multi-select/SelectableItems.js"></script>
+	<script src="src/multi-select/RemovableItems.js"></script>
+	<script src="src/multi-select/MultiSelect.js"></script>
+		<script src="src/AssetManager.es6.js"></script>
+
+  <script>
+	let state = {changed: new Set()};
+	let initialState = {db: [], allTags: [], allTerms: [], queried: [], tags: [], terms: [], activePage: 0, pageQty: 0, firstIdx: 0 };
+	let pagination = new PageNavigator(document.getElementById('pagination'));
+	let itemList = new ItemList(document.getElementById('itemList'));
+
+	let ITEMS_PER_PAGE = 50, PAGINATION_DELTA = 4;
+
+
+	xhr('/etc/data/vs-assets.tsv', (tsv) => {
+			var aTags = new Set(), aTerms = new Set();
+			var db = tsv.split("\n").reduce((acc, d, i) => {
+			if(d.length) {
+				var [src, fmt, tags, terms, others] = d.split('\t');
+				tags = tags.split(';');
+				tags.forEach((t) => { aTags.add(t); })
+				terms = terms.split(';');
+				terms.forEach((t) => { aTerms.add(t); })
+				others = others.split(';');
+				var url = 'http://bl.ocks.org/' + src;
+				var thumb = 'etc/snapshots/_no-pict.png';
+				if (fmt && fmt.indexOf('gtb:') !== -1) {
+					var rid = fmt.replace('gtb:','');
+					thumb = `https://gist.githubusercontent.com/${src}/raw/${rid}/thumbnail.png`;
+				} else if (fmt && fmt.indexOf('s') !== -1) {
+					thumb = `etc/snapshots/raw_${src.replace('/','-')}.png`;
+				}
+				var doc = {src: url, thumb, fmt, tags, terms: terms, others};
+				acc.push(doc);
+			}
+			return acc;
+		}, []);
+		setState({allTags: Array.from(aTags.values()), allTerms: Array.from(aTerms.values())})
+		renderMultiSelects();
+		setState(Object.assign(initialState, {db}));
+	});
+
+	function renderMultiSelects() {
+		let {allTags, allTerms} = state;
+		let tagSelect = new MultiSelect('tags', allTags, (tags) => { setState({tags}); });
+		let termSelect = new MultiSelect('terms', allTerms, (terms) => { setState({terms}); });
+
+		var tagNode = document.getElementById('tags');
+		tagNode.innerHTML = '' ; tagNode.appendChild(tagSelect.node());
+		var termNode = document.getElementById('terms');
+		termNode.innerHTML = ''; termNode.appendChild(termSelect.node());
+	}
+
+	function queryDb(db, sTags, sTerms) {
+		var options = {};
+		// get options
+		var hasTags  = (sTags  && Array.isArray(sTags)  && sTags.length > 0);
+		var hasTerms = (sTerms && Array.isArray(sTerms) && sTerms.length > 0);
+		var searchFn;
+		if (hasTags || hasTerms) {
+			searchFn = (d) => {
+				var {tags, terms} = d;
+				var isIn = true;
+				if (hasTags  && !Haystack.allOf(tags, sTags))   { isIn = false; }
+				if (hasTerms && !Haystack.allOf(terms, sTerms)) { isIn = false; }
+				return isIn;
+			}
+		}
+		// search
+		var queried = [];
+		if(searchFn === undefined) {
+			queried = Object.keys(db);
+		} else {
+			for(let i = 0, ni = db.length; i < ni; i++) {
+				if(searchFn === undefined || searchFn(db[i])) { queried.push(i); }
+			}
+		}
+		setState({queried});
+	}
+
+	function setState(obj) {
+		var changed = state.changed;
+		Object.keys(obj).forEach((d) => { changed.add(d); })
+		state = Object.assign(state, obj);
+
+		if(changed.has('db') || changed.has('tags') || changed.has('terms')) {
+			changed.delete('db');
+			changed.delete('tags');
+			changed.delete('terms');
+			queryDb(state.db, state.tags, state.terms);
+
+		} else if(changed.has('queried')) {
+
+				changed.delete('queried');
+				var pageQty = Math.ceil(state.queried.length / ITEMS_PER_PAGE);
+				if(pageQty !== state.pageQty) {
+						setState({pageQty})
+				}
+				setState({activePage: 0});
+
+		} else if(changed.has('activePage') || changed.has('pageQty')) {
+
+			changed.delete('pageQty');
+			var pages = paginationAlgorithm(state.activePage, state.pageQty, PAGINATION_DELTA);
+			pagination.render(pages, setState);
+			if(changed.has('activePage')) {
+				changed.delete('activePage');
+				setState({firstIdx: ITEMS_PER_PAGE * (state.activePage)});
+			}
+
+		} else if(changed.has('firstIdx')) {
+				changed.delete('firstIdx');
+				let fst = state.firstIdx;
+				let db = state.db;
+				let items = state.queried.slice(fst, fst + ITEMS_PER_PAGE).map((i) => {
+					return db[i];
+				});
+				itemList.render(items);
+
+		}
+
+
+	}
+	</script>
+
+</body>
+</html>
