@@ -37,7 +37,7 @@
 	let ITEMS_PER_PAGE = 50, PAGINATION_DELTA = 4;
 
 
-	xhr('/etc/data/vs-assets.tsv', (tsv) => {
+	xhr('etc/data/vs-assets.tsv', (tsv) => {
 			var aTags = new Set(), aTerms = new Set();
 			var db = tsv.split("\n").reduce((acc, d, i) => {
 			if(d.length) {
