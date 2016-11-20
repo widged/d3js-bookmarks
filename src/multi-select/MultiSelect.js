@@ -52,10 +52,10 @@ class MultiSelect {
 
   onSelected(item) {
     let {removable, selectable, input, onChange} = this.stateManager.get();
+    input.value = '';
+    selectable.fragment();
     removable.addItem(item);
     selectable.deselect(removable.items());
-    console.log(input.value)
-    input.value = '';
     this.onRemovedChange();
   }
 

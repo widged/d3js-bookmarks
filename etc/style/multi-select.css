@@ -25,6 +25,7 @@ multi-select removable-items item {
   background: #e7ebee;
   border-radius: 2px 2px 2px 2px;
   padding: 1px 1px 1px 1px;
+  margin-right: 2px;
 }
 
 multi-select removable-items item > span {
@@ -36,4 +37,9 @@ multi-select removable-items item > span {
   width: 12px;
   text-align: center;
   margin-left: 6px;
+}
+
+multi-select selectable-items item + item::before {
+  content: " \2698  ";
+  color: #d9d9d9;
 }

@@ -34,15 +34,6 @@ asset-explorer .asset-item {
 }
 
 
-
-asset-explorer .asset-item .traits removable {
-  background-color: #daf2fe;
-}
-
-asset-explorer .asset-item .terms removable {
-  background-color: #fffab4;
-}
-
 asset-explorer .to-add {
   background-color: white;
   position: fixed;

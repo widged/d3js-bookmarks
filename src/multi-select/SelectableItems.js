@@ -16,12 +16,8 @@ class SelectableItems {
   show() { this.setVisible(true); }
   setVisible(visible) {
     let {node} = this.state;
-    if(visible !== undefined) {
-      node.style.display = visible ? 'block' : 'none' ;
-    }
-    if(visible === true) {
-      this.update();
-    }
+    if(visible !== undefined) { node.style.display = visible ? 'block' : 'none' ; }
+    if(visible === true) { this.update(); }
   }
 
   filterInFragment(fragment) {
@@ -38,7 +34,6 @@ class SelectableItems {
   }
 
   deselect(values) {
-    console.log('values', this.state.values.join(','), values.join(','))
     if(this.state.values.join(',') !== values.join(',')) {
       this.state.values = values.slice();
       this.update();
@@ -47,7 +42,6 @@ class SelectableItems {
 
   update() {
     let {node, items, fragment, values} = this.state;
-    console
     var activeOptions = items.filter(this.filterInFragment(fragment)).filter(this.filterOutValues(values));
     node.innerHTML = activeOptions.map((d) => { return `<item>${d}</item>`; }).join(' ');
   }
