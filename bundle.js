@@ -43,7 +43,6 @@ var BookmarkExplorer = (function () {
       var tags = _ref.tags;
       var terms = _ref.terms;
 
-      console.log();
       _this.state.set({ db: db, allTags: tags, allTerms: terms });
     });
   }
@@ -54,7 +53,6 @@ var BookmarkExplorer = (function () {
       var _this2 = this;
 
       if (['db', 'tags', 'terms'].includes(k)) {
-        console.log('tags,terms', v);
         this.debounced.queryDb.trigger();
       }
 
@@ -107,8 +105,6 @@ var BookmarkExplorer = (function () {
   }, {
     key: 'queryDb',
     value: function queryDb() {
-      console.log('queryDb');
-
       var _state$get3 = this.state.get();
 
       var db = _state$get3.db;
@@ -419,7 +415,7 @@ var ItemList = (function () {
         var thumbPath = d.thumb;
         var blockLinks = '<div>\n  <span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="gist" data-idx="' + i + '">gist</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>\n</div>';
 
-        return '<item>\n<div class="asset-item">\n  <div>\n    <img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg">\n    <div class="links">' + blockLinks + '</div>\n  </div>\n  <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n      <spacer style="height: 3px;"></spacer>\n    </div>\n    </div>\n    </item>';
+        return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg">\n      <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n\n  </div>\n</item>';
       });
       node.innerHTML = nodes.join('\n');
       return node;
@@ -430,6 +426,11 @@ var ItemList = (function () {
 })();
 
 /* src is good to go */
+
+/*
+
+</div>
+*/
 /* jshint esnext: true */
 
 'use strict';

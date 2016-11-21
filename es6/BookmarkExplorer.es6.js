@@ -22,7 +22,6 @@ class BookmarkExplorer {
 
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', ({db, tags, terms}) => {
-      console.log()
       this.state.set({db, allTags: tags, allTerms: terms});
     });
 
@@ -30,7 +29,6 @@ class BookmarkExplorer {
 
   afterStateChange(k, v, oldV) {
     if(['db','tags','terms'].includes(k)) {
-      console.log('tags,terms', v)
       this.debounced.queryDb.trigger();
     }
 
@@ -66,7 +64,6 @@ class BookmarkExplorer {
   }
 
   queryDb() {
-    console.log('queryDb')
     const {db, tags: sTags, terms: sTerms} = this.state.get();
     var options = {};
     // get options

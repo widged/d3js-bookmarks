@@ -7,9 +7,11 @@ item-list {
   display: block;
   font-size: 8px;
   margin-bottom: 9px;
+  align-items: center;
 }
 
 item-list > item {
+  box-sizing: border-box;
   display: inline-block;
   width: 300px;
   height: 160px;
@@ -21,15 +23,13 @@ item-list > item {
   background-color: white;
 }
 
-item-list > item .links {
-
-}
-
 
 item-list .asset-item {
+  box-sizing: border-box;
   display: flex;
   flex-flow: row;
   font-size: 8px;
+  height: 160px;
 }
 
 item-list .asset-item img {
@@ -48,4 +48,8 @@ item-list .tagged item {
   margin-bottom: 1px;
   padding: 1px 3px;
   position: relative;
+}
+
+item-list .asset-item .desc {
+  max-width: 120px;
 }

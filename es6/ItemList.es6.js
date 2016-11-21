@@ -46,19 +46,19 @@ class ItemList {
 </div>`;
 
       return `<item>
-<div class="asset-item">
-  <div>
-    <img data-path="${thumbPath}" src="${thumbPath}" alt="svg">
-    <div class="links">${blockLinks}</div>
-  </div>
-  <div class="desc">
+  <div class="asset-item">
+    <div class="preview">
+      <img data-path="${thumbPath}" src="${thumbPath}" alt="svg">
+      <div class="links">${blockLinks}</div>
+    </div>
+    <div class="desc">
       <div class="tagged tags">${tags}</div>
       <div class="tagged terms">${terms}</div>
       <div class="tagged others">${others}</div>
-      <spacer style="height: 3px;"></spacer>
     </div>
-    </div>
-    </item>`
+
+  </div>
+</item>`
       ;
     });
     node.innerHTML = nodes.join('\n');
@@ -66,3 +66,8 @@ class ItemList {
   }
 
 }
+
+/*
+
+</div>
+*/
