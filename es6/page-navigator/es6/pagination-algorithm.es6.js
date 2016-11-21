@@ -3,6 +3,7 @@
 // http://stackoverflow.com/questions/163809/smart-pagination-algorithm
 // Implementation in ES6
 function paginationAlgorithm(c, m, delta) {
+    // c, m must be numbers
     var current = c,
         last = m,
         left = current - delta,

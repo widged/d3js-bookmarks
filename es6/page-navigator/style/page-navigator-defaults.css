@@ -1,12 +1,13 @@
-list-paging {
+page-navigator {
   display: flex;
   flex-direction: row;
   flex-flow: nowrap;
   font-size: 9px;
   color: #0095f5;
+  margin: 3px 0;
 }
 
-list-paging > item {
+page-navigator > item {
   background-color: #daf2fe;
   border: 1px solid #0095f5;
   border-radius: 3px;

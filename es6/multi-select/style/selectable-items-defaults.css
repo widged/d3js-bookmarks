@@ -1,0 +1,4 @@
+selectable-items item + item::before {
+  content: " \2698  ";
+  color: #d9d9d9;
+}

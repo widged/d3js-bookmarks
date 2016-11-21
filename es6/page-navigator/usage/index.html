@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="../style/page-navigator-defaults.css">
+</head>
+<body>
+
+	<div id="app"></div>
+
+	<!-- <script src="bundle.js"></script> -->
+	<script src="../../StateManager.es6.js"></script>
+  <script src="../es6/pagination-algorithm.es6.js"></script>
+	<script src="../es6/PageNavigator.es6.js"></script>
+
+	<script>
+  for(let i = 0, ni = 10; i < ni; i++) {
+    var app = new PageNavigator({onChange: (items) => { console.log(items) }});
+  	document.getElementById('app').appendChild(app.render());
+    var pages = paginationAlgorithm(i, 10, 2);
+    app.setPages(pages);
+  }
+	</script>
+
+
+</body>
+</html>

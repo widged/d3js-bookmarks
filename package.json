@@ -1,0 +1,14 @@
+{
+  "name": "d3js-bookmarks",
+  "version": "1.0.0",
+  "description": "Basic explorer for d3js bookmarks",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "babel es6 --out-file bundle.js"
+  },  "repository": {
+    "url": "https://github.com/widged/d3js-bookmarks.git",
+    "type": "git"
+  },
+  "author": "Marielle Pointon <marielle@widged.com>",
+  "license": "MIT"
+}

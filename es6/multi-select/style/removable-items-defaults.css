@@ -1,0 +1,26 @@
+removable-items  {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  width: 100%;
+}
+
+removable-items item {
+  margin: 0; padding: 0;
+  display: block;
+  background: #e7ebee;
+  border-radius: 2px 2px 2px 2px;
+  padding: 1px 1px 1px 1px;
+  margin-right: 2px;
+}
+
+removable-items item > span {
+  margin: 0; padding: 0;
+  display: inline-block;
+  width: 10px;
+  background-color: #c4cfd4;
+  cursor: pointer;
+  width: 12px;
+  text-align: center;
+  margin-left: 6px;
+}

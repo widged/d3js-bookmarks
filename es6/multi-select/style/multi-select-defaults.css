@@ -1,0 +1,18 @@
+multi-select {
+  display: block;
+  min-height: 100px;
+  font-size: 9px;
+  width: 100%;
+}
+multi-select input {
+  width: 100%;
+}
+
+multi-select .removable  {
+  min-height: 16px;
+}
+
+
+multi-select .selectable.inactive {
+  display: none;
+}

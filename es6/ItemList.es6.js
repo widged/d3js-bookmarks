@@ -1,9 +1,25 @@
 /* jshint esnext: true */
 
 class ItemList {
-  constructor(node) {
-      var state = this.state = {node, items: []};
-      node.addEventListener('click', function(e) {
+  constructor() {
+    this.state = new StateManager(this.afterStateChange.bind(this));
+    this.state.setInitial({items: []});
+  }
+
+  afterStateChange(k, v, oldV) {
+    if(k === 'items') {
+      this.render();
+    }
+  }
+
+  setItems(_) { this.state.set({items: _}); }
+
+  render() {
+    var itemNode = (d) => { return d && d.length ? `<item>${d}</item>` : ''; };
+
+    if(!this.node) {
+      this.node = document.createElement('item-list');
+      this.node.addEventListener('click', function(e) {
         var type = e.target.dataset.src;
         if(type) {
           var idx = e.target.dataset.idx;
@@ -14,13 +30,10 @@ class ItemList {
           window.open(src, '_blank');
         }
       });
+    }
 
-  }
-  render(items) {
-    this.state.items = items;
-    var itemNode = (d) => { return d && d.length ? `<item>${d}</item>` : ''; };
-    var node = this.state.node;
-
+    let node = this.node;
+    const {items} = this.state.get();
     var nodes = items.map((d, i) => {
       var tags = d.tags.map(itemNode).join(' ');
       var terms = d.terms.map(itemNode).join(' ');
@@ -49,5 +62,7 @@ class ItemList {
       ;
     });
     node.innerHTML = nodes.join('\n');
+    return node;
   }
+
 }

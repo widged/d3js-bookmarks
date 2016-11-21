@@ -1,4 +1,9 @@
+
+
 item-list {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
   display: block;
   font-size: 8px;
   margin-bottom: 9px;
@@ -20,6 +25,12 @@ item-list > item .links {
 
 }
 
+
+item-list .asset-item {
+  display: flex;
+  flex-flow: row;
+  font-size: 8px;
+}
 
 item-list .asset-item img {
   width: 160px;

@@ -1,0 +1,52 @@
+body {
+  font-family: 'Monaco', arial;
+}
+bookmark-explorer {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+bookmark-explorer .query-options {
+  display: flex;
+  flex-direction: row;
+  flex-flow: nowrap;
+  font-size: 8px;
+}
+
+bookmark-explorer .query-options .tags,
+bookmark-explorer .query-options .terms {
+  padding: 0 9px;
+  width: 300px;
+}
+
+
+spacer {
+  font-size: 1px;
+  min-height: 1px;
+  display: block;
+}
+
+
+removable-items item,
+.tagged.tags item  {
+  font-size: 8px;
+
+}
+.query-options .tags removable-items item,
+item-list .tagged.tags item {
+  background: #d9efee;
+  border: 1px solid #6dc2b8;
+}
+
+
+.query-options .terms removable-items item,
+item-list .tagged.terms item {
+  background: #f0ddf3;
+  border: 1px solid #a386d5;
+}
+
+item-list .tagged.others item {
+  background: #f8fbe0;
+  border: 1px solid #e0ee86;
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="../style/multi-select-defaults.css">
+	<link rel="stylesheet" href="../style/removable-items-defaults.css">
+	<link rel="stylesheet" href="../style/selectable-items-defaults.css">
+</head>
+<body>
+
+	<div id="app" style="width: 400px"></div>
+
+	<!-- <script src="bundle.js"></script> -->
+	<script src="./lorem.js"></script>
+	<script src="../../StateManager.es6.js"></script>
+	<script src="../../Debouncer.es6.js"></script>
+	<script src="../es6/MultiSelect.es6.js"></script>
+	<script src="../es6/RemovableItems.es6.js"></script>
+	<script src="../es6/SelectableItems.es6.js"></script>
+
+	<script>
+	var app = new MultiSelect('tags', (d) => {
+		console.log(d)
+	});
+	document.getElementById('app').appendChild(app.render());
+	app.setSelectableItems(lorem.split(/\s+/))
+	</script>
+
+
+</body>
+</html>
