@@ -29,7 +29,7 @@ class BookmarksImporter {
         return acc;
       }, []);
 
-      asyncReturn({db, tags: Array.from(aTags.values()), terms: Array.from(aTerms.values())});
+      asyncReturn({db, tags: Array.from(aTags.values()).sort(), terms: Array.from(aTerms.values()).sort()});
 
     });
   }

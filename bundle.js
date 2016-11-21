@@ -6,15 +6,16 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var ITEMS_PER_PAGE = 50,
-    PAGINATION_DELTA = 4;
-
 var BookmarkExplorer = (function () {
-  function BookmarkExplorer() {
+  function BookmarkExplorer(_ref) {
     var _this = this;
+
+    var itemsPerPage = _ref.itemsPerPage;
+    var paginationDelta = _ref.paginationDelta;
 
     _classCallCheck(this, BookmarkExplorer);
 
+    this.props = Object.assign({ itemsPerPage: itemsPerPage, paginationDelta: paginationDelta }, { itemsPerPage: 48, paginationDelta: 4 });
     this.debounced = {
       queryDb: new Debouncer(100, function () {
         _this.queryDb();
@@ -38,10 +39,10 @@ var BookmarkExplorer = (function () {
     this.state.setInitial({ db: [], allTags: [], allTerms: [], queried: [], tags: [], terms: [], activePage: 0, pageQty: 0, firstIdx: 0 });
 
     var importer = new BookmarksImporter();
-    importer.load('etc/data/vs-assets.tsv', function (_ref) {
-      var db = _ref.db;
-      var tags = _ref.tags;
-      var terms = _ref.terms;
+    importer.load('etc/data/vs-assets.tsv', function (_ref2) {
+      var db = _ref2.db;
+      var tags = _ref2.tags;
+      var terms = _ref2.terms;
 
       _this.state.set({ db: db, allTags: tags, allTerms: terms });
     });
@@ -63,19 +64,23 @@ var BookmarkExplorer = (function () {
         this.refs.termSelect.setSelectableItems(v);
       }
       if (k == 'queried') {
-        var pageQty = Math.ceil(v.length / ITEMS_PER_PAGE);
+        var itemsPerPage = this.props.itemsPerPage;
+
+        var pageQty = Math.ceil(v.length / itemsPerPage);
         this.state.set({ pageQty: pageQty, activePage: 0 });
       }
 
       if (['queried', 'firstIdx'].includes(k)) {
         (function () {
+          var itemsPerPage = _this2.props.itemsPerPage;
+
           var _state$get = _this2.state.get();
 
           var db = _state$get.db;
           var firstIdx = _state$get.firstIdx;
           var queried = _state$get.queried;
 
-          var items = queried.slice(firstIdx, firstIdx + ITEMS_PER_PAGE).map(function (i) {
+          var items = queried.slice(firstIdx, firstIdx + itemsPerPage).map(function (i) {
             return db[i];
           });
           _this2.state.set({ items: items });
@@ -88,6 +93,9 @@ var BookmarkExplorer = (function () {
       }
 
       if (['activePage', 'pageQty'].includes(k)) {
+        var _props = this.props;
+        var itemsPerPage = _props.itemsPerPage;
+        var paginationDelta = _props.paginationDelta;
         var pageNavigator = this.refs.pageNavigator;
 
         var _state$get2 = this.state.get();
@@ -95,9 +103,9 @@ var BookmarkExplorer = (function () {
         var activePage = _state$get2.activePage;
         var _pageQty = _state$get2.pageQty;
 
-        var pages = paginationAlgorithm(activePage, _pageQty, PAGINATION_DELTA);
+        var pages = paginationAlgorithm(activePage, _pageQty, paginationDelta);
         pageNavigator.setPages(pages);
-        this.state.set({ firstIdx: ITEMS_PER_PAGE * activePage });
+        this.state.set({ firstIdx: itemsPerPage * activePage });
       }
 
       return v;
@@ -243,113 +251,6 @@ var BookmarksImporter = (function () {
 })();
 /* jshint esnext: true */
 
-"use strict";
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Debouncer = (function () {
-  function Debouncer(delay, cb) {
-    _classCallCheck(this, Debouncer);
-
-    this.state = { cb: cb, delay: delay };
-    this.timeout = undefined;
-    this.bound = { clear: this.clear.bind(this) };
-  }
-
-  _createClass(Debouncer, [{
-    key: "clear",
-    value: function clear() {
-      if (this.timeout) {
-        clearTimeout(this.timeout);this.timeout = undefined;
-      }
-    }
-  }, {
-    key: "trigger",
-    value: function trigger() {
-      var _state = this.state;
-      var cb = _state.cb;
-      var delay = _state.delay;
-
-      var clear = this.bound.clear;
-      clear();
-      this.timeout = setTimeout(function () {
-        clear();cb();
-      }, delay);
-    }
-  }]);
-
-  return Debouncer;
-})();
-/* jshint esnext: true */
-
-"use strict";
-
-var Haystack = {};
-
-Haystack.nothingToDo = function (haystack, needles) {
-    return !Array.isArray(needles) || !Array.isArray(haystack);
-};
-Haystack.haystackTooSmall = function (haystack, needles) {
-    var out = false;
-    if (Haystack.nothingToDo(haystack, needles)) {
-        out = true;
-    } else if (haystack.length < needles.length) {
-        out = true;
-    }
-    return out;
-};
-Haystack.allOf = function (haystack, needles) {
-    var out = false;
-    if (Haystack.haystackTooSmall(haystack, needles)) {
-        out = false;
-    } else {
-        out = true;
-        for (var _i = 0, needles_1 = needles; _i < needles_1.length; _i++) {
-            var d = needles_1[_i];
-            if (haystack.indexOf(d) === -1) {
-                out = false;
-                break;
-            }
-        }
-    }
-    return out;
-};
-Haystack.someOf = function (haystack, needles) {
-    var out = false;
-    if (Haystack.haystackTooSmall(haystack, needles)) {
-        out = false;
-    } else {
-        out = false;
-        for (var _i = 0, needles_2 = needles; _i < needles_2.length; _i++) {
-            var d = needles_2[_i];
-            if (haystack.indexOf(d) !== -1) {
-                out = true;
-                break;
-            }
-        }
-    }
-    return out;
-};
-Haystack.noneOf = function (haystack, needles) {
-    var out = false;
-    if (Haystack.nothingToDo(haystack, needles)) {
-        out = false;
-    } else {
-        out = true;
-        for (var _i = 0, needles_3 = needles; _i < needles_3.length; _i++) {
-            var d = needles_3[_i];
-            if (haystack.indexOf(d) !== -1) {
-                out = false;
-                break;
-            }
-        }
-    }
-    return out;
-};
-/* jshint esnext: true */
-
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -415,7 +316,7 @@ var ItemList = (function () {
         var thumbPath = d.thumb;
         var blockLinks = '<div>\n  <span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="gist" data-idx="' + i + '">gist</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>\n</div>';
 
-        return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <div><div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div></div>\n      <div class="links">' + blockLinks + '</div>\n      </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n\n  </div>\n</item>';
+        return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n      <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n  </div>\n</item>';
       });
       node.innerHTML = nodes.join('\n');
       return node;
@@ -426,86 +327,6 @@ var ItemList = (function () {
 })();
 
 /* src is good to go */
-
-/*
-
-</div>
-*/
-/* jshint esnext: true */
-
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var StateManager = (function () {
-  function StateManager(afterKeyChange, beforeKeySet) {
-    _classCallCheck(this, StateManager);
-
-    if (typeof beforeKeySet === 'function') {
-      this.beforeKeySet = beforeKeySet;
-    }
-    if (typeof afterKeyChange === 'function') {
-      this.afterKeyChange = afterKeyChange;
-    }
-    this.state = {};
-    this.changed = new Set();
-  }
-
-  _createClass(StateManager, [{
-    key: 'set',
-    value: function set(obj) {
-      var _this = this;
-
-      if (typeof obj !== 'object') {
-        throw new TypeError('StateManager.set expects an object as parameter');
-      }
-      if (typeof obj === 'object') {
-        var keys = Object.keys(obj);
-        keys.forEach(function (k) {
-          _this.changed.add(k);
-          var oldV = _this.state[k];
-          var v = _this.beforeKeySet(k, obj[k]);
-          _this.state[k] = v;
-          _this.afterKeyChange(k, v, v !== oldV, oldV);
-        });
-      }
-    }
-  }, {
-    key: 'setInitial',
-    value: function setInitial(obj) {
-      if (typeof obj !== 'object') {
-        throw new TypeError('StateManager.set expects an object as parameter');
-      }
-      this.state = Object.assign(this.state, obj);
-    }
-  }, {
-    key: 'get',
-    value: function get() {
-      return this.state;
-    }
-  }, {
-    key: 'changes',
-    value: function changes() {
-      var l = Array.from(this.changed.values());
-      this.changed = new Set();
-      return l;
-    }
-  }, {
-    key: 'beforeKeySet',
-    value: function beforeKeySet(k, v) {
-      return v;
-    }
-  }, {
-    key: 'afterKeyChange',
-    value: function afterKeyChange(key, v, oldV) {
-      return v;
-    }
-  }]);
-
-  return StateManager;
-})();
 /* jshint esnext: true */
 
 'use strict';
@@ -1017,6 +838,188 @@ Selected page 18: [1, "...", 16, 17, 18, 19, 20]
 Selected page 19: [1, "...", 17, 18, 19, 20]
 Selected page 20: [1, "...", 18, 19, 20]
 */
+/* jshint esnext: true */
+
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Debouncer = (function () {
+  function Debouncer(delay, cb) {
+    _classCallCheck(this, Debouncer);
+
+    this.state = { cb: cb, delay: delay };
+    this.timeout = undefined;
+    this.bound = { clear: this.clear.bind(this) };
+  }
+
+  _createClass(Debouncer, [{
+    key: "clear",
+    value: function clear() {
+      if (this.timeout) {
+        clearTimeout(this.timeout);this.timeout = undefined;
+      }
+    }
+  }, {
+    key: "trigger",
+    value: function trigger() {
+      var _state = this.state;
+      var cb = _state.cb;
+      var delay = _state.delay;
+
+      var clear = this.bound.clear;
+      clear();
+      this.timeout = setTimeout(function () {
+        clear();cb();
+      }, delay);
+    }
+  }]);
+
+  return Debouncer;
+})();
+/* jshint esnext: true */
+
+"use strict";
+
+var Haystack = {};
+
+Haystack.nothingToDo = function (haystack, needles) {
+    return !Array.isArray(needles) || !Array.isArray(haystack);
+};
+Haystack.haystackTooSmall = function (haystack, needles) {
+    var out = false;
+    if (Haystack.nothingToDo(haystack, needles)) {
+        out = true;
+    } else if (haystack.length < needles.length) {
+        out = true;
+    }
+    return out;
+};
+Haystack.allOf = function (haystack, needles) {
+    var out = false;
+    if (Haystack.haystackTooSmall(haystack, needles)) {
+        out = false;
+    } else {
+        out = true;
+        for (var _i = 0, needles_1 = needles; _i < needles_1.length; _i++) {
+            var d = needles_1[_i];
+            if (haystack.indexOf(d) === -1) {
+                out = false;
+                break;
+            }
+        }
+    }
+    return out;
+};
+Haystack.someOf = function (haystack, needles) {
+    var out = false;
+    if (Haystack.haystackTooSmall(haystack, needles)) {
+        out = false;
+    } else {
+        out = false;
+        for (var _i = 0, needles_2 = needles; _i < needles_2.length; _i++) {
+            var d = needles_2[_i];
+            if (haystack.indexOf(d) !== -1) {
+                out = true;
+                break;
+            }
+        }
+    }
+    return out;
+};
+Haystack.noneOf = function (haystack, needles) {
+    var out = false;
+    if (Haystack.nothingToDo(haystack, needles)) {
+        out = false;
+    } else {
+        out = true;
+        for (var _i = 0, needles_3 = needles; _i < needles_3.length; _i++) {
+            var d = needles_3[_i];
+            if (haystack.indexOf(d) !== -1) {
+                out = false;
+                break;
+            }
+        }
+    }
+    return out;
+};
+/* jshint esnext: true */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var StateManager = (function () {
+  function StateManager(afterKeyChange, beforeKeySet) {
+    _classCallCheck(this, StateManager);
+
+    if (typeof beforeKeySet === 'function') {
+      this.beforeKeySet = beforeKeySet;
+    }
+    if (typeof afterKeyChange === 'function') {
+      this.afterKeyChange = afterKeyChange;
+    }
+    this.state = {};
+    this.changed = new Set();
+  }
+
+  _createClass(StateManager, [{
+    key: 'set',
+    value: function set(obj) {
+      var _this = this;
+
+      if (typeof obj !== 'object') {
+        throw new TypeError('StateManager.set expects an object as parameter');
+      }
+      if (typeof obj === 'object') {
+        var keys = Object.keys(obj);
+        keys.forEach(function (k) {
+          _this.changed.add(k);
+          var oldV = _this.state[k];
+          var v = _this.beforeKeySet(k, obj[k]);
+          _this.state[k] = v;
+          _this.afterKeyChange(k, v, v !== oldV, oldV);
+        });
+      }
+    }
+  }, {
+    key: 'setInitial',
+    value: function setInitial(obj) {
+      if (typeof obj !== 'object') {
+        throw new TypeError('StateManager.set expects an object as parameter');
+      }
+      this.state = Object.assign(this.state, obj);
+    }
+  }, {
+    key: 'get',
+    value: function get() {
+      return this.state;
+    }
+  }, {
+    key: 'changes',
+    value: function changes() {
+      var l = Array.from(this.changed.values());
+      this.changed = new Set();
+      return l;
+    }
+  }, {
+    key: 'beforeKeySet',
+    value: function beforeKeySet(k, v) {
+      return v;
+    }
+  }, {
+    key: 'afterKeyChange',
+    value: function afterKeyChange(key, v, oldV) {
+      return v;
+    }
+  }]);
+
+  return StateManager;
+})();
 'use strict';
 
 function xhr(path, callback) {

@@ -1,11 +1,10 @@
 /* jshint esnext: true */
 
-const ITEMS_PER_PAGE = 50, PAGINATION_DELTA = 4;
 
 class BookmarkExplorer {
 
-  constructor() {
-
+  constructor({itemsPerPage, paginationDelta}) {
+    this.props = Object.assign({itemsPerPage, paginationDelta}, { itemsPerPage : 48, paginationDelta: 4 });
     this.debounced = {
       queryDb : new Debouncer(100, () => { this.queryDb(); })
     };
@@ -35,13 +34,15 @@ class BookmarkExplorer {
     if(k == 'allTags') { this.refs.tagSelect.setSelectableItems(v); }
     if(k == 'allTerms') { this.refs.termSelect.setSelectableItems(v); }
     if(k == 'queried') {
-      var pageQty = Math.ceil(v.length / ITEMS_PER_PAGE);
+      const {itemsPerPage} = this.props;
+      var pageQty = Math.ceil(v.length / itemsPerPage);
       this.state.set({pageQty, activePage: 0});
     }
 
     if(['queried','firstIdx'].includes(k)) {
+      const {itemsPerPage} = this.props;
       let {db, firstIdx, queried} = this.state.get();
-      let items = queried.slice(firstIdx, firstIdx + ITEMS_PER_PAGE).map((i) => {
+      let items = queried.slice(firstIdx, firstIdx + itemsPerPage).map((i) => {
         return db[i];
       });
       this.state.set({items});
@@ -53,11 +54,12 @@ class BookmarkExplorer {
     }
 
     if(['activePage','pageQty'].includes(k)) {
+      const {itemsPerPage, paginationDelta} = this.props;
       const {pageNavigator} = this.refs;
       const {activePage, pageQty} = this.state.get();
-      var pages = paginationAlgorithm(activePage, pageQty, PAGINATION_DELTA);
+      var pages = paginationAlgorithm(activePage, pageQty, paginationDelta);
       pageNavigator.setPages(pages);
-      this.state.set({firstIdx: ITEMS_PER_PAGE * activePage});
+      this.state.set({firstIdx: itemsPerPage * activePage});
     }
 
     return v;

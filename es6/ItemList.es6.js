@@ -16,14 +16,16 @@ class ItemList {
 
   render() {
     var itemNode = (d) => { return d && d.length ? `<item>${d}</item>` : ''; };
+    var state = this.state;
 
     if(!this.node) {
       this.node = document.createElement('item-list');
       this.node.addEventListener('click', function(e) {
         var type = e.target.dataset.src;
+
         if(type) {
           var idx = e.target.dataset.idx;
-          var src = state.items[idx].src;
+          var src = state.get().items[idx].src;
           if(type === 'block')  { /* src is good to go */}
           if(type === 'gist')   { src = src.replace("bl.ocks.org", "gist.github.com");}
           if(type === 'inlet')  { src = src.replace(/http:\/\/bl.ocks.org\/([^\/]+)\/(\w+)$/, "http://tributary.io/inlet/$2?user=$1"); }
@@ -31,9 +33,8 @@ class ItemList {
         }
       });
     }
-
+    const {items} = state.get();
     let node = this.node;
-    const {items} = this.state.get();
     var nodes = items.map((d, i) => {
       var tags = d.tags.map(itemNode).join(' ');
       var terms = d.terms.map(itemNode).join(' ');
@@ -50,13 +51,12 @@ class ItemList {
     <div class="preview">
       <div class="thumb"><img data-path="${thumbPath}" src="${thumbPath}" alt="svg"></div>
       <div class="links">${blockLinks}</div>
-      </div>
+    </div>
     <div class="desc">
       <div class="tagged tags">${tags}</div>
       <div class="tagged terms">${terms}</div>
       <div class="tagged others">${others}</div>
     </div>
-
   </div>
 </item>`
       ;
@@ -66,9 +66,3 @@ class ItemList {
   }
 
 }
-
-//
-/*
-
-</div>
-*/
