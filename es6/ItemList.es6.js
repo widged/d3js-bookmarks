@@ -48,9 +48,9 @@ class ItemList {
       return `<item>
   <div class="asset-item">
     <div class="preview">
-      <img data-path="${thumbPath}" src="${thumbPath}" alt="svg">
+      <div class="thumb"><img data-path="${thumbPath}" src="${thumbPath}" alt="svg"></div>
       <div class="links">${blockLinks}</div>
-    </div>
+      </div>
     <div class="desc">
       <div class="tagged tags">${tags}</div>
       <div class="tagged terms">${terms}</div>
@@ -67,6 +67,7 @@ class ItemList {
 
 }
 
+//
 /*
 
 </div>

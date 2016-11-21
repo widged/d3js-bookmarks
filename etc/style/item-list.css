@@ -29,7 +29,7 @@ item-list .asset-item {
   display: flex;
   flex-flow: row;
   font-size: 8px;
-  height: 160px;
+  height: 150px;
 }
 
 item-list .asset-item img {

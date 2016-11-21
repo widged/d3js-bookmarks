@@ -415,7 +415,7 @@ var ItemList = (function () {
         var thumbPath = d.thumb;
         var blockLinks = '<div>\n  <span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="gist" data-idx="' + i + '">gist</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>\n</div>';
 
-        return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg">\n      <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n\n  </div>\n</item>';
+        return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <div><div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div></div>\n      <div class="links">' + blockLinks + '</div>\n      </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n\n  </div>\n</item>';
       });
       node.innerHTML = nodes.join('\n');
       return node;
