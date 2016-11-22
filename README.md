@@ -17,4 +17,3 @@ I gave a shot to coding with es6 without dependencies, without the need to trans
 TODO
 
 * Limit tags and terms to the one still available for the items selected so far.
-  * Add option to specify a tags and terms in the
