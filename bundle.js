@@ -30,19 +30,6 @@ var BookmarkExplorer = (function () {
       })
     };
 
-    this.refs = {
-      itemList: new ItemList(),
-      pageNavigator: new PageNavigator({ onChange: function onChange(pageIdx) {
-          _this.state.set({ activePage: pageIdx });
-        } }),
-      tagSelect: new MultiSelect({ placeholder: 'tags', onChange: function onChange(tags) {
-          _this.state.set({ tags: tags });
-        } }),
-      termSelect: new MultiSelect({ placeholder: 'terms', onChange: function onChange(terms) {
-          _this.state.set({ terms: terms });
-        } })
-    };
-
     this.state = new StateManager(this.afterStateChange.bind(this));
     this.state.setInitial({ db: [], allTags: [], allTerms: [], queried: [], tags: tags, terms: terms, activePage: 0, pageQty: 0, firstIdx: 0 });
     var importer = new BookmarksImporter();
@@ -53,6 +40,29 @@ var BookmarkExplorer = (function () {
 
       _this.state.set({ db: db, allTags: aTags, allTerms: aTerms });
     });
+
+    console.log(terms);
+
+    this.refs = {
+      itemList: new ItemList(),
+      pageNavigator: new PageNavigator({ onChange: function onChange(pageIdx) {
+          _this.state.set({ activePage: pageIdx });
+        } }),
+      tagSelect: new MultiSelect({
+        placeholder: 'tags',
+        onChange: function onChange(tags) {
+          _this.state.set({ tags: tags });
+        },
+        selectedItems: tags
+      }),
+      termSelect: new MultiSelect({
+        placeholder: 'terms',
+        onChange: function onChange(terms) {
+          _this.state.set({ terms: terms });
+        },
+        selectedItems: terms
+      })
+    };
   }
 
   _createClass(BookmarkExplorer, [{
@@ -345,8 +355,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var MultiSelect = (function () {
   function MultiSelect(_ref) {
+    var _this = this;
+
     var placeholder = _ref.placeholder;
     var onChange = _ref.onChange;
+    var selectedItems = _ref.selectedItems;
 
     _classCallCheck(this, MultiSelect);
 
@@ -365,7 +378,13 @@ var MultiSelect = (function () {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ fragment: '', selectedItems: [], active: false });
+    if (!Array.isArray(selectedItems)) {
+      selectedItems = [];
+    }
+    selectedItems.forEach(function (d) {
+      _this.comps.removable.addItem(d);
+    });
+    this.state.setInitial({ fragment: '', selectedItems: selectedItems, active: false });
   }
 
   _createClass(MultiSelect, [{
@@ -896,7 +915,7 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 function getQueryString(url) {
   url = url || location.href; //used location.href to avoid bug on IE6 and pseudo query string inside location.hash
   url = url.replace(/#.*/, ''); //removes hash (to avoid getting hash query)
-  var queryString = /\?[a-zA-Z0-9\=\&\%\$\-\_\.\+\!\*\'\(\)\,\:]+/.exec(url); //valid chars according to: http://www.ietf.org/rfc/rfc1738.txt
+  var queryString = /\?[a-zA-Z0-9\=\&\%\$\-\_\.\+\!\*\'\(\)\,\:\;]+/.exec(url); //valid chars according to: http://www.ietf.org/rfc/rfc1738.txt
   return queryString ? decodeURIComponent(queryString[0]) : '';
 }
 

@@ -2,7 +2,7 @@
 
 class MultiSelect {
 
-  constructor({placeholder, onChange}) {
+  constructor({placeholder, onChange, selectedItems}) {
     this.props = {placeholder, onChange};
     this.debounced = {
       updateFilter: new Debouncer(50, this.updateFilter.bind(this))
@@ -18,13 +18,19 @@ class MultiSelect {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({fragment: '', selectedItems: [], active: false});
+    if(!Array.isArray(selectedItems)) { selectedItems = []; }
+    selectedItems.forEach((d) => {
+      this.comps.removable.addItem(d);
+    });
+    this.state.setInitial({fragment: '', selectedItems, active: false});
+
   }
 
   setSelectableItems(_) {
     const {selectable} = this.comps;
     selectable.setItems(_);
   }
+
 
 
   afterStateChange(k, v, mutated) {
@@ -38,7 +44,7 @@ class MultiSelect {
     }
 
     if(['selectedItems'].includes(k)) {
-      let {onChange}  = this.props;    
+      let {onChange}  = this.props;
       onChange(this.state.get().selectedItems);
     }
 

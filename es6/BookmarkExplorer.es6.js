@@ -11,19 +11,30 @@ class BookmarkExplorer {
       queryDb : new Debouncer(100, () => { this.queryDb(); })
     };
 
-    this.refs = {
-      itemList  : new ItemList(),
-      pageNavigator: new PageNavigator({onChange: (pageIdx) => { this.state.set({activePage: pageIdx}); }}),
-      tagSelect : new MultiSelect({placeholder: 'tags', onChange: (tags) => { this.state.set({tags}); }}),
-      termSelect: new MultiSelect({placeholder: 'terms', onChange: (terms) => { this.state.set({terms}); }})
-    };
-
     this.state = new StateManager(this.afterStateChange.bind(this));
     this.state.setInitial({db: [], allTags: [], allTerms: [], queried: [], tags, terms, activePage: 0, pageQty: 0, firstIdx: 0 });
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', ({db, tags: aTags, terms: aTerms}) => {
       this.state.set({db, allTags: aTags, allTerms: aTerms});
     });
+
+    console.log(terms)
+
+    this.refs = {
+      itemList  : new ItemList(),
+      pageNavigator: new PageNavigator({onChange: (pageIdx) => { this.state.set({activePage: pageIdx}); }}),
+      tagSelect : new MultiSelect({
+        placeholder: 'tags',
+        onChange: (tags) => { this.state.set({tags}); },
+        selectedItems: tags
+      }),
+      termSelect: new MultiSelect({
+        placeholder: 'terms',
+        onChange: (terms) => { this.state.set({terms}); },
+        selectedItems: terms
+      })
+    };
+
 
   }
 
