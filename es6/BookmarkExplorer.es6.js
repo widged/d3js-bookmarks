@@ -3,7 +3,9 @@
 
 class BookmarkExplorer {
 
-  constructor({itemsPerPage, paginationDelta}) {
+  constructor({itemsPerPage, paginationDelta, tags, terms}) {
+    if(!Array.isArray(tags)) { tags = []; }
+    if(!Array.isArray(terms)) { terms = []; }
     this.props = Object.assign({itemsPerPage, paginationDelta}, { itemsPerPage : 48, paginationDelta: 4 });
     this.debounced = {
       queryDb : new Debouncer(100, () => { this.queryDb(); })
@@ -17,11 +19,12 @@ class BookmarkExplorer {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({db: [], allTags: [], allTerms: [], queried: [], tags: [], terms: [], activePage: 0, pageQty: 0, firstIdx: 0 });
+    console.log(tags, terms)
+    this.state.setInitial({db: [], allTags: [], allTerms: [], queried: [], tags, terms, activePage: 0, pageQty: 0, firstIdx: 0 });
 
     var importer = new BookmarksImporter();
-    importer.load('etc/data/vs-assets.tsv', ({db, tags, terms}) => {
-      this.state.set({db, allTags: tags, allTerms: terms});
+    importer.load('etc/data/vs-assets.tsv', ({db, tags: aTags, terms: aTerms}) => {
+      this.state.set({db, allTags: aTags, allTerms: aTerms});
     });
 
   }

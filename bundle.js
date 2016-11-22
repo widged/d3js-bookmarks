@@ -12,9 +12,17 @@ var BookmarkExplorer = (function () {
 
     var itemsPerPage = _ref.itemsPerPage;
     var paginationDelta = _ref.paginationDelta;
+    var tags = _ref.tags;
+    var terms = _ref.terms;
 
     _classCallCheck(this, BookmarkExplorer);
 
+    if (!Array.isArray(tags)) {
+      tags = [];
+    }
+    if (!Array.isArray(terms)) {
+      terms = [];
+    }
     this.props = Object.assign({ itemsPerPage: itemsPerPage, paginationDelta: paginationDelta }, { itemsPerPage: 48, paginationDelta: 4 });
     this.debounced = {
       queryDb: new Debouncer(100, function () {
@@ -36,15 +44,16 @@ var BookmarkExplorer = (function () {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ db: [], allTags: [], allTerms: [], queried: [], tags: [], terms: [], activePage: 0, pageQty: 0, firstIdx: 0 });
+    console.log(tags, terms);
+    this.state.setInitial({ db: [], allTags: [], allTerms: [], queried: [], tags: tags, terms: terms, activePage: 0, pageQty: 0, firstIdx: 0 });
 
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', function (_ref2) {
       var db = _ref2.db;
-      var tags = _ref2.tags;
-      var terms = _ref2.terms;
+      var aTags = _ref2.tags;
+      var aTerms = _ref2.terms;
 
-      _this.state.set({ db: db, allTags: tags, allTerms: terms });
+      _this.state.set({ db: db, allTags: aTags, allTerms: aTerms });
     });
   }
 
@@ -242,7 +251,7 @@ var BookmarksImporter = (function () {
           return acc;
         }, []);
 
-        asyncReturn({ db: db, tags: Array.from(aTags.values()), terms: Array.from(aTerms.values()) });
+        asyncReturn({ db: db, tags: Array.from(aTags.values()).sort(), terms: Array.from(aTerms.values()).sort() });
       });
     }
   }]);
@@ -283,14 +292,16 @@ var ItemList = (function () {
       var itemNode = function itemNode(d) {
         return d && d.length ? '<item>' + d + '</item>' : '';
       };
+      var state = this.state;
 
       if (!this.node) {
         this.node = document.createElement('item-list');
         this.node.addEventListener('click', function (e) {
           var type = e.target.dataset.src;
+
           if (type) {
             var idx = e.target.dataset.idx;
-            var src = state.items[idx].src;
+            var src = state.get().items[idx].src;
             if (type === 'block') {}
             if (type === 'gist') {
               src = src.replace('bl.ocks.org', 'gist.github.com');
@@ -303,18 +314,17 @@ var ItemList = (function () {
         });
       }
 
-      var node = this.node;
-
-      var _state$get = this.state.get();
+      var _state$get = state.get();
 
       var items = _state$get.items;
 
+      var node = this.node;
       var nodes = items.map(function (d, i) {
         var tags = d.tags.map(itemNode).join(' ');
         var terms = d.terms.map(itemNode).join(' ');
         var others = d.others.map(itemNode).join(' ');
         var thumbPath = d.thumb;
-        var blockLinks = '<div>\n  <span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="gist" data-idx="' + i + '">gist</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>\n</div>';
+        var blockLinks = '<div>\n  <span data-src="gist" data-idx="' + i + '">gist</span> \n  (<span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>)\n</div>';
 
         return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n      <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n  </div>\n</item>';
       });
@@ -879,6 +889,40 @@ var Debouncer = (function () {
 
   return Debouncer;
 })();
+/* jshint esnext: true */
+
+'use strict';
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+function getQueryString(url) {
+  url = url || location.href; //used location.href to avoid bug on IE6 and pseudo query string inside location.hash
+  url = url.replace(/#.*/, ''); //removes hash (to avoid getting hash query)
+  var queryString = /\?[a-zA-Z0-9\=\&\%\$\-\_\.\+\!\*\'\(\)\,\:]+/.exec(url); //valid chars according to: http://www.ietf.org/rfc/rfc1738.txt
+  return queryString ? decodeURIComponent(queryString[0]) : '';
+}
+
+function decodeQuery(str) {
+  return (str || '').replace('?', '').split('&').reduce(function (acc, d, i) {
+    var _ref = d.split('=') || [];
+
+    var _ref2 = _slicedToArray(_ref, 2);
+
+    var k = _ref2[0];
+    var v = _ref2[1];
+
+    if (k) {
+      if (!/\D/.exec(v)) {
+        v = parseInt(v, 10);
+      }
+      if (!/[^\d\.]/.exec(v)) {
+        v = parseFloat(v);
+      }
+      acc[k] = v;
+    }
+    return acc;
+  }, {});
+}
 /* jshint esnext: true */
 
 "use strict";

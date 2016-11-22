@@ -16,6 +16,7 @@
 	<script src="es6/utils/Haystack.es6.js"></script>
 	<script src="es6/utils/Debouncer.es6.js"></script>
 	<script src="es6/utils/StateManager.es6.js"></script>
+	<script src="es6/utils/DecodeQueryString.es6.js"></script>
 	<script src="es6/BookmarksImporter.es6.js"></script>
 	<script src="es6/ItemList.es6.js"></script>
 	<script src="es6/page-navigator/es6/PageNavigator.es6.js"></script>
@@ -26,7 +27,11 @@
 	<script src="es6/BookmarkExplorer.es6.js"></script>
 
 	<script>
-	var app = new BookmarkExplorer({itemsPerPage: 48, paginationDelta: 4});
+	var q = getQueryString();
+	var {tags, terms} = decodeQuery(q);
+	tags  = (typeof tags  === 'string') ? tags.split(';') : [];
+	terms = (typeof terms === 'string') ? terms.split(';') : [];
+	var app = new BookmarkExplorer({itemsPerPage: 48, paginationDelta: 4, tags, terms});
 	document.getElementById('app').appendChild(app.render());
 	</script>
 
