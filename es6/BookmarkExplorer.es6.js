@@ -18,11 +18,7 @@ class BookmarkExplorer {
       this.state.set({db, allTags: aTags, allTerms: aTerms});
     });
 
-    console.log(terms)
-
     this.refs = {
-      itemList  : new ItemList(),
-      pageNavigator: new PageNavigator({onChange: (pageIdx) => { this.state.set({activePage: pageIdx}); }}),
       tagSelect : new MultiSelect({
         placeholder: 'tags',
         onChange: (tags) => { this.state.set({tags}); },
@@ -32,10 +28,12 @@ class BookmarkExplorer {
         placeholder: 'terms',
         onChange: (terms) => { this.state.set({terms}); },
         selectedItems: terms
+      }),
+      itemList  : new ItemList(),
+      pageNavigator: new PageNavigator({
+        onChange: (pageIdx) => { this.state.set({activePage: pageIdx}); }
       })
     };
-
-
   }
 
   afterStateChange(k, v, oldV) {
@@ -109,16 +107,16 @@ class BookmarkExplorer {
   render() {
 
     if(!this.node) {
-        this.node = document.createElement('bookmark-explorer');
-        let node = this.node;
-        node.innerHTML = `
-            <div class="query-options">
-      				<div class="tags"> </div>
-      				<div class="terms"> </div>
-      			</div>
-            <div class="item-list"></div>
-            <div class="pageNavigator"></div>
-        `;
+      this.node = document.createElement('bookmark-explorer');
+      let node = this.node;
+      node.innerHTML = `
+          <div class="query-options">
+      			<div class="tags"> </div>
+      			<div class="terms"> </div>
+      		</div>
+          <div class="item-list"></div>
+          <div class="pageNavigator"></div>
+      `;
     }
 
     let node = this.node;
@@ -130,11 +128,9 @@ class BookmarkExplorer {
     return node;
   }
 
-
 }
 
 function mount(node, component) {
   node.innerHTML = '';
   node.appendChild(component);
-
 }
