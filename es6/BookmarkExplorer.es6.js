@@ -19,9 +19,7 @@ class BookmarkExplorer {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    console.log(tags, terms)
     this.state.setInitial({db: [], allTags: [], allTerms: [], queried: [], tags, terms, activePage: 0, pageQty: 0, firstIdx: 0 });
-
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', ({db, tags: aTags, terms: aTerms}) => {
       this.state.set({db, allTags: aTags, allTerms: aTerms});
