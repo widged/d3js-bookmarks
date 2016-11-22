@@ -44,9 +44,7 @@ var BookmarkExplorer = (function () {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    console.log(tags, terms);
     this.state.setInitial({ db: [], allTags: [], allTerms: [], queried: [], tags: tags, terms: terms, activePage: 0, pageQty: 0, firstIdx: 0 });
-
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', function (_ref2) {
       var db = _ref2.db;

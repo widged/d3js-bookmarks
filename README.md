@@ -12,8 +12,8 @@ For convenience, tags and terms can be specified in the queryString. Keys must b
 
 [https://widged.github.io/d3js-bookmarks/app.html?tags=coord:polar&terms=lay:chord;algo:bundle](https://widged.github.io/d3js-bookmarks/app.html?tags=coord:polar&terms=lay:chord;algo:bundle)
 
-I gave a shot to coding with es6 without dependencies, without the need to transpile or hot reload during development. The only dependency is `babel-cli` to convert es6 code to es5 to support older browsers. (The latest versions of Chrome and Safari can run the [es6 code](https://widged.github.io/d3js-bookmarks/app-dev.html) without any pre- or post-processing).
+I gave a shot to coding with es6 without dependencies, without the need to transpile or hot reload during development. The only dependency is `babel-cli` to convert es6 code to es5 to support older browsers. Run `yarn run bundle` or `npm run bundle` to generate a es5 version of the code. (Note that the latest versions of Chrome and Safari can run the [es6 code](https://widged.github.io/d3js-bookmarks/app-dev.html) without any pre- or post-processing).
 
-TODO
+## TODO
 
 * Limit tags and terms to the one still available for the items selected so far.
