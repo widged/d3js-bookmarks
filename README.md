@@ -10,5 +10,7 @@ In this repo, I share any d3js related bookmark that points to some online resou
 
 An explorer app is provided - https://widged.github.io/d3js-bookmarks/app.html
 
-I am using it to experiment with coding es6 without dependencies, without the need to transpile and hot reload during development. The only dependency is `babel-cli` to convert es6 code to es5 to support older browsers. 
+![app preview](preview.png "Bookmarks Explorer Preview")
+
+When writing the app, I experimented with coding es6 without dependencies, without the need to transpile and hot reload during development. The only dependency is `babel-cli` to convert es6 code to es5 to support older browsers. 
 
