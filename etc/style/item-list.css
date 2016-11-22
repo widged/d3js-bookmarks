@@ -40,7 +40,7 @@ item-list .asset-item .thumb img {
   position: relative;
   width: 160px;
   max-width: 160px;
-  height: 120px;
+  height: 100px;
   padding-right: 6px;
   /* pointer-events: none; */
 }

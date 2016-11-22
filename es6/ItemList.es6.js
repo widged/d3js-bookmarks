@@ -41,9 +41,9 @@ class ItemList {
       var others = d.others.map(itemNode).join(' ');
       var thumbPath = d.thumb;
       var   blockLinks =  `<div>
-  <span data-src="block" data-idx="${i}">block</span>,
-  <span data-src="gist" data-idx="${i}">gist</span>,
-  <span data-src="inlet" data-idx="${i}">inlet</span>
+  <span data-src="gist" data-idx="${i}">gist</span> 
+  (<span data-src="block" data-idx="${i}">block</span>,
+  <span data-src="inlet" data-idx="${i}">inlet</span>)
 </div>`;
 
       return `<item>
