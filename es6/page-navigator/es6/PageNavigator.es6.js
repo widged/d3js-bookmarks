@@ -6,32 +6,46 @@ class PageNavigator {
     this.props = {onChange};
     this.bound = { onPageClick : this.onPageClick.bind(this) };
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({pages: []});
+    this.state.setInitial({pages: [], activeIdx: 0});
   }
 
   afterStateChange(k, v, mutated, oldV) {
-    if(k === 'pages') { this.render(); }
+    if(k === 'pages') {
+      this.updateView();
+    }
   }
 
   onPageClick(e) {
     const {onChange} = this.props;
     if(typeof onChange === 'function') {
       var idx = e.target.dataset.idx;
-      if(idx !== undefined) { onChange(parseInt(idx, 10)); }
+      if(idx !== undefined) {
+        idx = parseInt(idx, 10);
+        this.state.set({activeIdx: idx});
+        onChange(idx);
+      }
     }
   }
 
-  setPages(_)  { this.state.set({pages: _}); }
+  setPages(pages, activeIdx)  { this.state.set({pages, activeIdx}); }
 
-  render() {
-    if(!this.node) {
-      this.node = document.createElement('page-navigator');
-      this.node.addEventListener('click', this.bound.onPageClick);
+  createElement() {
+    if(!this.mountNode) {
+      var node = document.createElement('page-navigator');
+      node.addEventListener('click', this.bound.onPageClick);
+      this.mountNode = node;
     }
-    let node = this.node;
-    let {pages} = this.state.get();
+    this.updateView();
+    return this.mountNode;
+  }
+
+  updateView() {
+    let node = this.mountNode;
+    let {pages, activeIdx} = this.state.get();
     node.innerHTML = pages.length < 2 ? '' : pages.map((d) => {
-      return (d !== '...') ? `<item data-idx=${d-1}>${d}</item>` : d;
+      var idx = d-1;
+      var dataActive = (idx === activeIdx) ? ' data-active' : '';
+      return (d !== '...') ? `<item data-idx=${idx}${dataActive}>${d}</item>` : d;
     }).join(' ');
     return node;
   }

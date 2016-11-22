@@ -2,20 +2,20 @@
 
 class RemovableItems {
 
-  constructor({onChange}) {
+  constructor({onChange, items}) {
     this.props = {onChange};
     this.bound = {
       onRemoveItem: this.onRemoveItem.bind(this)
     };
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({items: []});
+    this.state.setInitial({items});
   }
 
   afterStateChange(k, v, mutated) {
     if(k === 'items' && mutated) {
       const {onChange} = this.props;
       onChange(v);
-      this.render();
+      this.updateView();
     }
   }
 
@@ -33,19 +33,27 @@ class RemovableItems {
     this.state.set({items: clone });
   }
 
-  render() {
-    if(!this.node) {
+  // #####################
+  // # Render
+  // #####################
+  createElement() {
+    if(!this.mountNode) {
       const {onRemoveItem} = this.bound;
-      this.node = document.createElement('removable-items');
-      this.node.addEventListener('click', (evt) => {
+      let node = document.createElement('removable-items');
+      node.addEventListener('click', (evt) => {
         var idx = evt.target.dataset.removeidx;
         if(idx !== undefined) { onRemoveItem(parseInt(idx, 10)); }
       });
+      this.mountNode = node;
     }
-    let node = this.node;
+    this.updateView();
+    return this.mountNode;
+  }
+
+  updateView() {
+    let node = this.mountNode;
     const {items} = this.state.get();
     node.innerHTML = items.map((d, i) => { return `<item>${d}<span data-removeidx="${i}">x</span></item>`; }).join(' ');
-
     return node;
   }
 }

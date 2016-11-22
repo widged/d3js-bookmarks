@@ -25,7 +25,8 @@ class StateManager {
   setInitial(obj) {
     if(typeof obj !== 'object') { throw new TypeError('StateManager.set expects an object as parameter'); }
     this.state = Object.assign(this.state, obj);
-
+    var keys = Object.keys(obj);
+    keys.forEach((k) => { this.changed.add(k); });
   }
 
   get() {

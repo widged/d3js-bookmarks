@@ -8,11 +8,20 @@ page-navigator {
 }
 
 page-navigator > item {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
   background-color: #daf2fe;
   border: 1px solid #0095f5;
   border-radius: 3px;
   width: 24px;
   margin: 0px 2px;
   text-align: center;
+  padding: 1px 0;
+}
+
+page-navigator > item[data-active] {
+  color: #0095f5;
+  border: 1px solid #0095f5;
+  background-color: #6dc9fb;
 
 }

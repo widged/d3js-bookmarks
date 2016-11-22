@@ -60,7 +60,7 @@ class BookmarkExplorer {
 
     if(k === 'items') {
       this.refs.itemList.setItems(v);
-      this.render();
+      this.updateView();
     }
 
     if(['activePage','pageQty'].includes(k)) {
@@ -68,7 +68,7 @@ class BookmarkExplorer {
       const {pageNavigator} = this.refs;
       const {activePage, pageQty} = this.state.get();
       var pages = paginationAlgorithm(activePage, pageQty, paginationDelta);
-      pageNavigator.setPages(pages);
+      pageNavigator.setPages(pages, activePage);
       this.state.set({firstIdx: itemsPerPage * activePage});
     }
 
@@ -103,34 +103,35 @@ class BookmarkExplorer {
     this.state.set({queried});
   }
 
-
-  render() {
-
-    if(!this.node) {
-      this.node = document.createElement('bookmark-explorer');
-      let node = this.node;
+  // #####################
+  // # Render
+  // #####################
+  createElement() {
+    if(!this.mountNode) {
+      const {itemList, pageNavigator, tagSelect, termSelect} = this.refs;
+      let node = document.createElement('bookmark-explorer');
       node.innerHTML = `
-          <div class="query-options">
-      			<div class="tags"> </div>
-      			<div class="terms"> </div>
-      		</div>
-          <div class="item-list"></div>
-          <div class="pageNavigator"></div>
-      `;
+<div class="query-options">
+	<div class="tags"> </div>
+	<div class="terms"> </div>
+</div>
+<div class="item-list"></div>
+<div class="pageNavigator"></div>`;
+      node.querySelector('.query-options .tags').appendChild(tagSelect.createElement());
+      node.querySelector('.query-options .terms').appendChild(termSelect.createElement());
+      node.querySelector('.item-list').appendChild(itemList.createElement());
+      node.querySelector('.pageNavigator').appendChild(pageNavigator.createElement());
+      this.mountNode = node;
     }
-
-    let node = this.node;
-    const {itemList, pageNavigator, tagSelect, termSelect} = this.refs;
-    mount(node.querySelector('.item-list'), itemList.render());
-    mount(node.querySelector('.pageNavigator'), pageNavigator.render());
-    mount(node.querySelector('.query-options .tags'), tagSelect.render());
-    mount(node.querySelector('.query-options .terms'), termSelect.render());
-    return node;
+    this.updateView();
+    return this.mountNode;
   }
+
+  updateView() { }
 
 }
 
-function mount(node, component) {
+function replaceChild(node, component) {
   node.innerHTML = '';
   node.appendChild(component);
 }

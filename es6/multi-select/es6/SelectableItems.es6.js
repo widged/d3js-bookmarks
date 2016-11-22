@@ -11,28 +11,37 @@ class SelectableItems {
   }
 
   afterStateChange(k, v, mutated) {
-    if(k === 'items' && mutated) {
-      this.render();
-    }
-    if(k === 'filterFn' && mutated) {
-      this.render();
+    if(['items', 'filterFn'].includes(k) && mutated) {
+      this.updateView();
     }
   }
 
   setItems(_)    { this.state.set({items: _.slice(0) }); }
   setFilterFn(_) { this.state.set({filterFn: _}); }
 
-  render() {
-    if(!this.node) {
+  // #####################
+  // # createElement
+  // #####################
+  createElement() {
+    if(!this.mountNode) {
       let {onItemSelected} = this.bound;
-      this.node = document.createElement('selectable-items');
-      this.node.addEventListener('click', (evt) => {
+      let node = document.createElement('selectable-items');
+      node.addEventListener('click', (evt) => {
         if(evt.target.nodeName === 'ITEM') { onItemSelected(evt.target.innerText); }
       });
+      this.mountNode = node;
     }
-    var node = this.node;
-    let {items, filterFn} = this.state.get();
-    var activeOptions = items.filter(filterFn);
+    this.updateView();
+    return this.mountNode;
+  }
+
+  // #####################
+  // # createElement
+  // #####################
+  updateView() {
+    var node = this.mountNode;
+    const {items, filterFn} = this.state.get();
+    const activeOptions = items.filter(filterFn);
     node.innerHTML = activeOptions.map((d) => { return `<item>${d}</item>`; }).join(' ');
     return node;
   }

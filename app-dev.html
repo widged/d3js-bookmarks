@@ -32,7 +32,7 @@
 	tags  = (typeof tags  === 'string') ? tags.split(';') : [];
 	terms = (typeof terms === 'string') ? terms.split(';') : [];
 	var app = new BookmarkExplorer({itemsPerPage: 48, paginationDelta: 4, tags, terms});
-	document.getElementById('app').appendChild(app.render());
+	document.getElementById('app').appendChild(app.createElement());
 	</script>
 
 

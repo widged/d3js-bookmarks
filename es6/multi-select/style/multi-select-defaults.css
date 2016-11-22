@@ -9,7 +9,7 @@ multi-select input {
   width: 100%;
 }
 
-multi-select .removable  {
+multi-select .selection  {
   min-height: 16px;
 }
 

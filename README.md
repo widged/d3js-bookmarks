@@ -8,7 +8,7 @@ An explorer app is provided - [https://widged.github.io/d3js-bookmarks/index.htm
 
 ![app preview](preview.png "Bookmarks Explorer Preview")
 
-For convenience, tags and terms can be specified in the queryString. Keys must be separated by ';'
+For convenience, tags and terms can be specified in the queryString. Keys must be separated by ';'.
 
 [https://widged.github.io/d3js-bookmarks/index.html?tags=coord:polar&terms=lay:chord;algo:bundle](https://widged.github.io/d3js-bookmarks/index.html?tags=coord:polar&terms=lay:chord;algo:bundle)
 
@@ -18,4 +18,4 @@ I gave a shot to coding with es6 without dependencies, without the need to trans
 
 * Limit tags and terms to the one still available for the items selected so far.
 * Clicking on a tag or term in the item list should add that tag or term to the query options.
-* Find the way to get display:flex to work on all browser with thumbnails of varying sizes. 
+* Find the way to get display:flex to work on all browser with thumbnails of varying sizes.

@@ -4,76 +4,73 @@ class MultiSelect {
 
   constructor({placeholder, onChange, selectedItems}) {
     this.props = {placeholder, onChange};
-    this.debounced = {
-      updateFilter: new Debouncer(50, this.updateFilter.bind(this))
-    };
-    this.bound = {
-      onActivated     : this.onActivated.bind(this),
-      onDisactivated  : this.onDisactivated.bind(this),
-      onFragmentChange: this.onFragmentChange.bind(this)
-    };
-    this.comps = {
-      removable:  new RemovableItems({onChange: this.onRemovedChange.bind(this)}),
-      selectable: new SelectableItems({onChange: this.onItemAdded.bind(this)})
-    };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
     if(!Array.isArray(selectedItems)) { selectedItems = []; }
-    selectedItems.forEach((d) => {
-      this.comps.removable.addItem(d);
-    });
     this.state.setInitial({fragment: '', selectedItems, active: false});
+
+    this.debounced = {
+      updateFilter: new Debouncer(50, this.updateFilter.bind(this))
+    };
+    this.bound = [
+      'onActivated',
+      'onDisactivated',
+      'onFragmentChange',
+      'onRemovedChange',
+      'onItemAdded'
+    ].reduce((acc, k) => { acc[k] = this[k].bind(this); return acc; }, {});
+    this.refs = {
+      selection:  new RemovableItems({onChange: this.bound.onRemovedChange, items: this.state.get().selectedItems}),
+      selectable: new SelectableItems({onChange: this.bound.onItemAdded})
+    };
 
   }
 
+  // #####################
+  // # Pseudo accessors
+  // #####################
   setSelectableItems(_) {
-    const {selectable} = this.comps;
+    const {selectable} = this.refs;
     selectable.setItems(_);
   }
 
-
-
+  // #####################
+  // # Dealing with state change
+  // #####################
   afterStateChange(k, v, mutated) {
-    if(k === 'active' && mutated) {
-      this.render();
-    }
-
     if(['fragment','selectedItems'].includes(k)) {
       this.debounced.updateFilter.trigger();
-      this.render();
     }
-
     if(['selectedItems'].includes(k)) {
       let {onChange}  = this.props;
-      onChange(this.state.get().selectedItems);
+      onChange(v);
+      this.updateView();
     }
-
-
+    if(['active', 'fragment'].includes(k)) {
+      this.updateView();
+    }
   }
 
+  // #####################
+  // # Flow
+  // #####################
   onDisactivated()      { this.state.set({active: false}); }
   onActivated()         { this.state.set({active: true}); }
   onFragmentChange(str) { this.state.set({fragment: str}); }
-
   onItemAdded(item) {
-    let {removable, input} = this.comps;
     this.state.set({fragment: ''});
-    removable.addItem(item);
+    this.refs.selection.addItem(item);
   }
-
   onRemovedChange(items) {
-    let {removable, selectable} = this.comps;
-    let {fragment} = this.state.get();
     this.state.set({selectedItems: items});
   }
 
-  dispatchChange() {
-    let {onChange} = this.props;
-    onChange(items);
-  }
+  // #####################
+  // # Main
+  // #####################
 
   updateFilter() {
-    let {selectable} = this.comps;
+    let {selectable} = this.refs;
     let {fragment, selectedItems} = this.state.get();
     selectable.setFilterFn((d) => {
       var included = false;
@@ -85,45 +82,74 @@ class MultiSelect {
     });
   }
 
+  // #####################
+  // # Render
+  // #####################
+  createElement() {
+    if(!this.mountNode) {
+      const {onDisactivated, onActivated, onFragmentChange} = this.bound;
 
-  render() {
-    let {placeholder} = this.props;
-    const {onDisactivated, onActivated, onFragmentChange} = this.bound;
-    if(!this.node) {
-      this.node = document.createElement('multi-select');
-      let node = this.node;
+      let {placeholder} = this.props;
       if(typeof placeholder !== 'string') { placeholder = ''; }
+
+      let node = document.createElement('multi-select');
       node.innerHTML = `
-  <div class="removable"></div>
-  <div class="input"><input placeholder="${placeholder}" data-fragment></input></div>
-  <div class="selectable"></div>
-  `;
+<div class="selection"></div>
+<div class="input"><input placeholder="${placeholder}" data-fragment></input></div>
+<div class="selectable"></div>`;
+
+      node.querySelector('.selection').appendChild(this.refs.selection.createElement());
+      node.querySelector('.selectable').appendChild(this.refs.selectable.createElement());
 
       node.addEventListener('mouseleave', (evt) => { onDisactivated(); }, false);
-      node.addEventListener('click', (evt) => {
-        var d = evt.target.dataset.fragment;
-        if(d !== undefined) { onActivated(); }
+      var isFragment = (target) => { return target.dataset.fragment !== undefined; };
+      node.addEventListener('mouseover', (evt) => {
+        if(isFragment(evt.target)) { onActivated(); }
       });
       node.addEventListener('keyup', (evt) => {
-        var d = evt.target.dataset.fragment;
-        if(d !== undefined) { onFragmentChange(evt.target.value); }
+        if(isFragment(evt.target)) { onFragmentChange(evt.target.value); }
       });
+      this.mountNode = node;
     }
-    let node = this.node;
+    this.updateView();
+    return this.mountNode;
+  }
 
-    let {active, fragment} = this.state.get();
-    var changed = this.state.changes();
-    let {selectable, removable} = this.comps;
-    node.querySelector('.selectable').innerHTML = ''; node.querySelector('.selectable').appendChild(selectable.render());
-    node.querySelector('.removable').innerHTML = ''; node.querySelector('.removable').appendChild(removable.render());
-    node.querySelector('.input input').value = fragment;
-    setClassName(node.querySelector('.selectable').classList, 'inactive', !active);
+  updateView() {
+
+    let node = this.mountNode;
+    const {active, fragment} = this.state.get();
+    const changed = this.state.changes();
+
+    // selection element
+    // input element
+    let inputNode = node.querySelector('.input input');
+    if(changed.includes(fragment)) {
+      inputNode.value = fragment;
+    }
+
+    // input element
+    let selectableNode = node.querySelector('.selectable');
+    if(changed.includes('active')) {
+      setClassName(selectableNode, 'inactive', !active);
+    }
+
     return node;
   }
 
 }
 
-function setClassName(classList, name, isAdded) {
+// #####################
+// # Utilities
+// #####################
+
+function replaceChild(node, child) {
+  node.innerHTML = '';
+  node.appendChild(child);
+}
+
+function setClassName(node, name, isAdded) {
+  let classList = node.classList;
   if (!isAdded && classList.contains(name)) {
     classList.remove(name);
   } else if(isAdded && !classList.contains(name)) {

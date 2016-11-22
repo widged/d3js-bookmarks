@@ -10,16 +10,15 @@ class BookmarksImporter {
         var db = tsv.split("\n").reduce((acc, d, i) => {
         if(d.length) {
           var [src, fmt, tags, terms, others] = d.split('\t');
-          tags = tags.split(';');
+          tags = (tags || '').split(';');
           tags.forEach((t) => { aTags.add(t); });
-          terms = terms.split(';');
+          terms = (terms || '').split(';');
           terms.forEach((t) => { aTerms.add(t); });
-          others = others.split(';');
+          others = (others || '').split(';');
           var url = 'http://bl.ocks.org/' + src;
           var thumb = 'etc/snapshots/_no-pict.png';
-          if (fmt && fmt.indexOf('gtb:') !== -1) {
-            var rid = fmt.replace('gtb:','');
-            thumb = `https://gist.githubusercontent.com/${src}/raw/${rid}/thumbnail.png`;
+          if (fmt && fmt.indexOf('g') !== -1) {
+            thumb = `https://gist.githubusercontent.com/${src}/raw/thumbnail.png`;
           } else if (fmt && fmt.indexOf('s') !== -1) {
             thumb = `etc/snapshots/raw_${src.replace('/','-')}.png`;
           }
