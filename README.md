@@ -18,4 +18,5 @@ I gave a shot to coding with es6 without dependencies, without the need to trans
 
 * Limit tags and terms to the one still available for the items selected so far.
 * Clicking on a tag or term in the item list should add that tag or term to the query options.
-* Find the way to get display:flex to work on all browser with thumbnails of varying sizes.
+* Find the way to get `display:flex` to work in all browsers with thumbnails of varying sizes.
+* use typescript
