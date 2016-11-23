@@ -357,7 +357,7 @@ var BookmarkItemPrivate = (function () {
       }
 
       var blockLinks = '<div>\n    <span data-src="gist">gist</span>\n    (<span data-src="block">block</span>,\n    <span data-src="inlet">inlet</span>)\n    </div><div><span>@' + handle + '</span></div>\n    ';
-      node.innerHTML = '\n    <div class="asset-item">\n    <div class="preview">\n    <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n    <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n    <div class="tagged tags">' + tags + '</div>\n    <div class="tagged terms">' + terms + '</div>\n    <div class="tagged others">' + others + '</div>\n    </div>\n    </div>';
+      node.innerHTML = '\n    <div class="preview">\n    <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n    <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n    <div class="tagged tags">' + tags + '</div>\n    <div class="tagged terms">' + terms + '</div>\n    <div class="tagged others">' + others + '</div>\n    </div>';
     }
   }, {
     key: 'destroyElement',
