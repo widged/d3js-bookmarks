@@ -76,7 +76,6 @@ class BookmarkItemPrivate {
     </div><div><span>@${handle}</span></div>
     `;
     node.innerHTML = `
-    <div class="asset-item">
     <div class="preview">
     <div class="thumb"><img data-path="${thumbPath}" src="${thumbPath}" alt="svg"></div>
     <div class="links">${blockLinks}</div>
@@ -85,7 +84,6 @@ class BookmarkItemPrivate {
     <div class="tagged tags">${tags}</div>
     <div class="tagged terms">${terms}</div>
     <div class="tagged others">${others}</div>
-    </div>
     </div>`;
   }
 
