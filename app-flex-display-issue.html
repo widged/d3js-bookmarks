@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="etc/style/bookmark-explorer.css">
+	<link rel="stylesheet" href="etc/style/bookmark-item.css">
+	<link rel="stylesheet" href="es6/multi-select/style/multi-select-defaults.css">
+	<link rel="stylesheet" href="es6/multi-select/style/removable-items-defaults.css">
+	<link rel="stylesheet" href="es6/multi-select/style/selectable-items-defaults.css">
+	<link rel="stylesheet" href="es6/page-navigator/style/page-navigator-defaults.css">
+	<link rel="stylesheet" href="etc/style/item-list.css">
+	<style>
+	bookmark-item .thumb img {
+	  height: auto;
+	}
+	</style>
+
+</head>
+<body>
+
+	<div id="app"></div>
+	<script src="es6/xhr.js"></script>
+	<script src="es6/utils/Haystack.es6.js"></script>
+	<script src="es6/utils/Debouncer.es6.js"></script>
+	<script src="es6/utils/StateManager.es6.js"></script>
+	<script src="es6/utils/DecodeQueryString.es6.js"></script>
+	<script src="es6/BookmarksImporter.es6.js"></script>
+	<script src="es6/BookmarkItem.es6.js"></script>
+	<script src="es6/ItemList.es6.js"></script>
+	<script src="es6/page-navigator/es6/PageNavigator.es6.js"></script>
+	<script src="es6/page-navigator/es6/pagination-algorithm.es6.js"></script>
+	<script src="es6/multi-select/es6/MultiSelect.es6.js"></script>
+	<script src="es6/multi-select/es6/RemovableItems.es6.js"></script>
+	<script src="es6/multi-select/es6/SelectableItems.es6.js"></script>
+	<script src="es6/BookmarkExplorer.es6.js"></script>
+
+	<script>
+	var q = getQueryString();
+	var {tags, terms, nopic} = decodeQuery(q);
+	tags  = (typeof tags  === 'string') ? tags.split(';') : [];
+	terms = (typeof terms === 'string') ? terms.split(';') : [];
+	var app = new BookmarkExplorer({itemsPerPage: 48, paginationDelta: 4, tags, terms, nopic});
+	document.getElementById('app').appendChild(app.createElement());
+	</script>
+
+
+</body>
+</html>
