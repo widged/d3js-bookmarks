@@ -349,7 +349,7 @@ var BookmarkItemPrivate = (function () {
       var handle = _data$src$split2[0];
 
       var fmt = data.fmt;
-      var thumbPath = 'etc/snapshots/_no-pict.png';
+      var thumbPath = 'etc/snapshots/-no-pict.png';
       if (fmt && fmt.indexOf('gst') !== -1) {
         thumbPath = 'https://gist.githubusercontent.com/' + data.src + '/raw/thumbnail.png';
       } else if (fmt && fmt.indexOf('s') !== -1) {

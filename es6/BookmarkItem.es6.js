@@ -62,7 +62,7 @@ class BookmarkItemPrivate {
     var [handle] = data.src.split('/');
 
     const fmt = data.fmt;
-    let thumbPath = 'etc/snapshots/_no-pict.png';
+    let thumbPath = 'etc/snapshots/-no-pict.png';
     if (fmt && fmt.indexOf('gst') !== -1) {
       thumbPath = `https://gist.githubusercontent.com/${data.src}/raw/thumbnail.png`;
     } else if (fmt && fmt.indexOf('s') !== -1) {
