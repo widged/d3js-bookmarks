@@ -6,16 +6,17 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var BookmarkExplorer = (function () {
-  function BookmarkExplorer(_ref) {
+var BookmarkExplorerPrivate = (function () {
+  function BookmarkExplorerPrivate(_ref) {
     var _this = this;
 
     var itemsPerPage = _ref.itemsPerPage;
     var paginationDelta = _ref.paginationDelta;
     var tags = _ref.tags;
     var terms = _ref.terms;
+    var nopic = _ref.nopic;
 
-    _classCallCheck(this, BookmarkExplorer);
+    _classCallCheck(this, BookmarkExplorerPrivate);
 
     if (!Array.isArray(tags)) {
       tags = [];
@@ -31,7 +32,7 @@ var BookmarkExplorer = (function () {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ db: [], allTags: [], allTerms: [], queried: [], tags: tags, terms: terms, activePage: 0, pageQty: 0, firstIdx: 0 });
+    this.state.setInitial({ db: [], allTags: [], allTerms: [], nopic: nopic, queried: [], tags: tags, terms: terms, activePage: 0, pageQty: 0, firstIdx: 0 });
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', function (_ref2) {
       var db = _ref2.db;
@@ -56,7 +57,9 @@ var BookmarkExplorer = (function () {
         },
         selectedItems: terms
       }),
-      itemList: new ItemList(),
+      itemList: new ItemList({
+        ItemRenderer: BookmarkItem
+      }),
       pageNavigator: new PageNavigator({
         onChange: function onChange(pageIdx) {
           _this.state.set({ activePage: pageIdx });
@@ -65,8 +68,12 @@ var BookmarkExplorer = (function () {
     };
   }
 
-  _createClass(BookmarkExplorer, [{
+  _createClass(BookmarkExplorerPrivate, [{
     key: 'afterStateChange',
+
+    // #####################
+    // # Dealing with state change
+    // #####################
     value: function afterStateChange(k, v, oldV) {
       var _this2 = this;
 
@@ -129,12 +136,17 @@ var BookmarkExplorer = (function () {
     }
   }, {
     key: 'queryDb',
+
+    // #####################
+    // # Main
+    // #####################
     value: function queryDb() {
       var _state$get3 = this.state.get();
 
       var db = _state$get3.db;
       var sTags = _state$get3.tags;
       var sTerms = _state$get3.terms;
+      var nopic = _state$get3.nopic;
 
       var options = {};
       // get options
@@ -147,6 +159,9 @@ var BookmarkExplorer = (function () {
           var terms = d.terms;
 
           var isIn = true;
+          if (nopic === 'true') {
+            return !d.fmt;
+          }
           if (hasTags && !Haystack.allOf(tags, sTags)) {
             isIn = false;
           }
@@ -173,7 +188,7 @@ var BookmarkExplorer = (function () {
     key: 'createElement',
 
     // #####################
-    // # Render
+    // # Create Element
     // #####################
     value: function createElement() {
       if (!this.mountNode) {
@@ -196,16 +211,200 @@ var BookmarkExplorer = (function () {
     }
   }, {
     key: 'updateView',
+
+    // #####################
+    // # Update View
+    // #####################
     value: function updateView() {}
+  }]);
+
+  return BookmarkExplorerPrivate;
+})();
+
+/**
+ * Public interface
+ */
+
+var BookmarkExplorer = (function () {
+  function BookmarkExplorer(props) {
+    _classCallCheck(this, BookmarkExplorer);
+
+    this.__private = new BookmarkExplorerPrivate(props);
+  }
+
+  _createClass(BookmarkExplorer, [{
+    key: 'createElement',
+    value: function createElement() {
+      return this.__private.createElement();
+    }
   }]);
 
   return BookmarkExplorer;
 })();
 
-function replaceChild(node, component) {
-  node.innerHTML = '';
-  node.appendChild(component);
-}
+/* Nothing to do */
+/* jshint esnext: true */
+
+'use strict';
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var itemNode = function itemNode(d) {
+  return d && d.length ? '<item>' + d + '</item>' : '';
+};
+
+var BookmarkItemPrivate = (function () {
+  function BookmarkItemPrivate() {
+    var _this = this;
+
+    _classCallCheck(this, BookmarkItemPrivate);
+
+    this.state = new StateManager(this.afterStateChange.bind(this));
+    this.state.setInitial({ data: undefined });
+    this.bound = ['onLinkClick'].reduce(function (acc, d) {
+      acc[d] = _this[d].bind(_this);return acc;
+    }, {});
+  }
+
+  _createClass(BookmarkItemPrivate, [{
+    key: 'setData',
+
+    // #####################
+    // # Public Accessors
+    // #####################
+    value: function setData(_) {
+      this.state.set({ data: _ });
+    }
+  }, {
+    key: 'onLinkClick',
+
+    // #####################
+    // # Flow
+    // #####################
+    value: function onLinkClick(e) {
+      var type = e.target.dataset.src;
+      if (type) {
+        var idx = e.target.dataset.idx;
+        var src = this.state.get().data.src;
+
+        if (type === 'block') {
+          src = 'http://bl.ocks.org/' + src;
+        }
+        if (type === 'gist') {
+          src = 'http://gist.github.com/' + src;
+        }
+        if (type === 'inlet') {
+          src = 'http://tributary.io/inlet/' + src.replace(/([^\/]+)\/(\w+)$/, '$2?user=$1');
+        }
+        window.open(src, '_blank');
+      }
+    }
+  }, {
+    key: 'afterStateChange',
+
+    // #####################
+    // # Dealing with state change
+    // #####################
+    value: function afterStateChange(k, v, oldV) {
+      if (k === 'data') {
+        this.updateView();
+      }
+    }
+  }, {
+    key: 'createElement',
+
+    // #####################
+    // # Create Element
+    // #####################
+    value: function createElement() {
+      var node = document.createElement('bookmark-item');
+      node.addEventListener('click', this.bound.onLinkClick);
+      this.mountNode = node;
+      return this.mountNode;
+    }
+  }, {
+    key: 'updateView',
+    value: function updateView() {
+      var _state$get = this.state.get();
+
+      var data = _state$get.data;
+
+      if (data === undefined) {
+        node.innerHTML = '';return;
+      }
+
+      var node = this.mountNode;
+      var tags = data.tags.map(itemNode).join(' ');
+      var terms = data.terms.map(itemNode).join(' ');
+      var others = data.others.map(itemNode).join(' ');
+
+      var _data$src$split = data.src.split('/');
+
+      var _data$src$split2 = _slicedToArray(_data$src$split, 1);
+
+      var handle = _data$src$split2[0];
+
+      var fmt = data.fmt;
+      var thumbPath = 'etc/snapshots/_no-pict.png';
+      if (fmt && fmt.indexOf('gst') !== -1) {
+        thumbPath = 'https://gist.githubusercontent.com/' + data.src + '/raw/thumbnail.png';
+      } else if (fmt && fmt.indexOf('s') !== -1) {
+        thumbPath = 'etc/snapshots/' + data.src.replace('/', '-') + '.png';
+      }
+
+      var blockLinks = '<div>\n    <span data-src="gist">gist</span>\n    (<span data-src="block">block</span>,\n    <span data-src="inlet">inlet</span>)\n    </div><div><span>@' + handle + '</span></div>\n    ';
+      node.innerHTML = '\n    <div class="asset-item">\n    <div class="preview">\n    <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n    <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n    <div class="tagged tags">' + tags + '</div>\n    <div class="tagged terms">' + terms + '</div>\n    <div class="tagged others">' + others + '</div>\n    </div>\n    </div>';
+    }
+  }, {
+    key: 'destroyElement',
+
+    // #####################
+    // # Destroy Element
+    // #####################
+    value: function destroyElement() {}
+  }]);
+
+  return BookmarkItemPrivate;
+})();
+
+/**
+ * Public interface
+ */
+
+var BookmarkItem = (function () {
+  function BookmarkItem(props) {
+    _classCallCheck(this, BookmarkItem);
+
+    this.__private = new BookmarkItemPrivate(props);
+  }
+
+  _createClass(BookmarkItem, [{
+    key: 'setData',
+    value: function setData() {
+      var _private;
+
+      return (_private = this.__private).setData.apply(_private, arguments);
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement() {
+      return this.__private.createElement();
+    }
+  }, {
+    key: 'destroyElement',
+    value: function destroyElement() {
+      return this.__private.destroyElement();
+    }
+  }]);
+
+  return BookmarkItem;
+})();
+
+// cleanup and remove any event listener
 /* jshint esnext: true */
 
 'use strict';
@@ -250,14 +449,8 @@ var BookmarksImporter = (function () {
               aTerms.add(t);
             });
             others = (others || '').split(';');
-            var url = 'http://bl.ocks.org/' + src;
-            var thumb = 'etc/snapshots/_no-pict.png';
-            if (fmt && fmt.indexOf('g') !== -1) {
-              thumb = 'https://gist.githubusercontent.com/' + src + '/raw/thumbnail.png';
-            } else if (fmt && fmt.indexOf('s') !== -1) {
-              thumb = 'etc/snapshots/raw_' + src.replace('/', '-') + '.png';
-            }
-            var doc = { src: url, thumb: thumb, fmt: fmt, tags: tags, terms: terms, others: others };
+
+            var doc = { src: src, fmt: fmt, tags: tags, terms: terms, others: others };
             acc.push(doc);
           }
           return acc;
@@ -279,11 +472,15 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var ItemList = (function () {
-  function ItemList() {
+  function ItemList(_ref) {
+    var ItemRenderer = _ref.ItemRenderer;
+
     _classCallCheck(this, ItemList);
 
+    this.props = { ItemRenderer: ItemRenderer };
     this.state = new StateManager(this.afterStateChange.bind(this));
     this.state.setInitial({ items: [] });
+    this.refs = [];
   }
 
   _createClass(ItemList, [{
@@ -302,28 +499,11 @@ var ItemList = (function () {
     key: 'createElement',
 
     // #####################
-    // # Render
+    // # Create Element
     // #####################
     value: function createElement() {
-      var _this = this;
-
       if (!this.mountNode) {
         var node = document.createElement('item-list');
-        node.addEventListener('click', function (e) {
-          var type = e.target.dataset.src;
-          if (type) {
-            var idx = e.target.dataset.idx;
-            var src = _this.state.get().items[idx].src;
-            if (type === 'block') {}
-            if (type === 'gist') {
-              src = src.replace('bl.ocks.org', 'gist.github.com');
-            }
-            if (type === 'inlet') {
-              src = src.replace(/http:\/\/bl.ocks.org\/([^\/]+)\/(\w+)$/, 'http://tributary.io/inlet/$2?user=$1');
-            }
-            window.open(src, '_blank');
-          }
-        });
         this.mountNode = node;
       }
       this.updateView();
@@ -332,24 +512,37 @@ var ItemList = (function () {
   }, {
     key: 'updateView',
     value: function updateView() {
+      var _this = this;
+
       var node = this.mountNode;
-      var itemNode = function itemNode(d) {
-        return d && d.length ? '<item>' + d + '</item>' : '';
-      };
+      var ItemRenderer = this.props.ItemRenderer;
 
       var _state$get = this.state.get();
 
       var items = _state$get.items;
 
-      var nodes = items.map(function (d, i) {
-        var tags = d.tags.map(itemNode).join(' ');
-        var terms = d.terms.map(itemNode).join(' ');
-        var others = d.others.map(itemNode).join(' ');
-        var thumbPath = d.thumb;
-        var blockLinks = '<div>\n  <span data-src="gist" data-idx="' + i + '">gist</span>\n  (<span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>)\n</div>';
-        return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n      <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n  </div>\n</item>';
+      // destroy nodes not in use.
+      var children = Array.from(node.children);
+      children.forEach(function (d, i) {
+        if (!items.hasOwnProperty(i)) {
+          _this.refs[i].destroyElement();
+          delete _this.refs[i];
+          d.parentNode.removeChild(d);
+        }
       });
-      node.innerHTML = nodes.join('\n');
+
+      // destroy nodes not in use.
+      items.forEach(function (d, i) {
+        if (!children.hasOwnProperty(i)) {
+          var ref = new ItemRenderer();
+          _this.refs[i] = ref;
+          var itemNode = document.createElement('item');
+          itemNode.dataset.idx = i;
+          itemNode.appendChild(ref.createElement());
+          node.appendChild(itemNode);
+        }
+        _this.refs[i].setData(d, i);
+      });
       return node;
     }
   }]);
@@ -357,7 +550,25 @@ var ItemList = (function () {
   return ItemList;
 })();
 
-/* src is good to go */
+/*
+class ItemListWithDelegation extends ItemList {
+  createElement {
+    super.createElement()
+    const {ItemRenderer} = this.props;
+      // delegate saves CPU when binding event handlers;
+      // bind saves CPU when events trigger (e.g. a user clicks something, as events bubble up the DOM to the "root" element).
+    if(ItemRenderer.hasOwnProperty('delegateEvents')) {
+      ItemRenderer.delegateEvents({
+        addEventListener: (eventType, eventFn) => {
+          node.addEventListener(eventType, (e) => {
+            eventFn(e, this.state.get().items);
+          });
+        }
+      });
+    }
+  }
+}
+*/
 /* jshint esnext: true */
 
 'use strict';
@@ -366,15 +577,15 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var MultiSelect = (function () {
-  function MultiSelect(_ref) {
+var MultiSelectPrivate = (function () {
+  function MultiSelectPrivate(_ref) {
     var _this = this;
 
     var placeholder = _ref.placeholder;
     var onChange = _ref.onChange;
     var selectedItems = _ref.selectedItems;
 
-    _classCallCheck(this, MultiSelect);
+    _classCallCheck(this, MultiSelectPrivate);
 
     this.props = { placeholder: placeholder, onChange: onChange };
 
@@ -396,36 +607,19 @@ var MultiSelect = (function () {
     };
   }
 
-  _createClass(MultiSelect, [{
+  _createClass(MultiSelectPrivate, [{
     key: 'setSelectableItems',
 
     // #####################
-    // # Pseudo accessors
+    // # Public Accessors
     // #####################
     value: function setSelectableItems(_) {
       var selectable = this.refs.selectable;
 
+      if (!Array.isArray(_)) {
+        throw new TypeError('MultiSelect.setSelectableItems expects an \'Array\' as argument ' + _);
+      }
       selectable.setItems(_);
-    }
-  }, {
-    key: 'afterStateChange',
-
-    // #####################
-    // # Dealing with state change
-    // #####################
-    value: function afterStateChange(k, v, mutated) {
-      if (['fragment', 'selectedItems'].includes(k)) {
-        this.debounced.updateFilter.trigger();
-      }
-      if (['selectedItems'].includes(k)) {
-        var onChange = this.props.onChange;
-
-        onChange(v);
-        this.updateView();
-      }
-      if (['active', 'fragment'].includes(k)) {
-        this.updateView();
-      }
     }
   }, {
     key: 'onDisactivated',
@@ -458,12 +652,31 @@ var MultiSelect = (function () {
       this.state.set({ selectedItems: items });
     }
   }, {
+    key: 'afterStateChange',
+
+    // #####################
+    // # Dealing with state change
+    // #####################
+    value: function afterStateChange(k, v, mutated) {
+      if (['fragment', 'selectedItems'].includes(k)) {
+        this.debounced.updateFilter.trigger();
+      }
+      if (['selectedItems'].includes(k)) {
+        var onChange = this.props.onChange;
+
+        onChange(v);
+        this.updateView();
+      }
+      if (['active', 'fragment'].includes(k)) {
+        this.updateView();
+      }
+    }
+  }, {
     key: 'updateFilter',
 
     // #####################
     // # Main
     // #####################
-
     value: function updateFilter() {
       var selectable = this.refs.selectable;
 
@@ -489,7 +702,7 @@ var MultiSelect = (function () {
     key: 'createElement',
 
     // #####################
-    // # Render
+    // # Create Element
     // #####################
     value: function createElement() {
       var _this2 = this;
@@ -540,6 +753,10 @@ var MultiSelect = (function () {
     }
   }, {
     key: 'updateView',
+
+    // #####################
+    // # Update View
+    // #####################
     value: function updateView() {
 
       var node = this.mountNode;
@@ -568,18 +785,12 @@ var MultiSelect = (function () {
     }
   }]);
 
-  return MultiSelect;
+  return MultiSelectPrivate;
 })();
 
 // #####################
 // # Utilities
 // #####################
-
-function replaceChild(node, child) {
-  node.innerHTML = '';
-  node.appendChild(child);
-}
-
 function setClassName(node, name, isAdded) {
   var classList = node.classList;
   if (!isAdded && classList.contains(name)) {
@@ -588,6 +799,32 @@ function setClassName(node, name, isAdded) {
     classList.add(name);
   }
 }
+
+/**
+ * Public interface
+ */
+
+var MultiSelect = (function () {
+  function MultiSelect(props) {
+    _classCallCheck(this, MultiSelect);
+
+    this.__private = new MultiSelectPrivate(props);
+  }
+
+  _createClass(MultiSelect, [{
+    key: 'setSelectableItems',
+    value: function setSelectableItems(_) {
+      return this.__private.setSelectableItems(_);
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement() {
+      return this.__private.createElement();
+    }
+  }]);
+
+  return MultiSelect;
+})();
 /* jshint esnext: true */
 
 'use strict';
@@ -596,12 +833,12 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var RemovableItems = (function () {
-  function RemovableItems(_ref) {
+var RemovableItemsPrivate = (function () {
+  function RemovableItemsPrivate(_ref) {
     var onChange = _ref.onChange;
     var items = _ref.items;
 
-    _classCallCheck(this, RemovableItems);
+    _classCallCheck(this, RemovableItemsPrivate);
 
     this.props = { onChange: onChange };
     this.bound = {
@@ -614,18 +851,12 @@ var RemovableItems = (function () {
     this.state.setInitial({ items: items });
   }
 
-  _createClass(RemovableItems, [{
-    key: 'afterStateChange',
-    value: function afterStateChange(k, v, mutated) {
-      if (k === 'items' && mutated) {
-        var onChange = this.props.onChange;
-
-        onChange(v);
-        this.updateView();
-      }
-    }
-  }, {
+  _createClass(RemovableItemsPrivate, [{
     key: 'addItem',
+
+    // #####################
+    // # Public Accessors
+    // #####################
     value: function addItem(item) {
       var _state$get = this.state.get();
 
@@ -638,6 +869,10 @@ var RemovableItems = (function () {
     }
   }, {
     key: 'onRemoveItem',
+
+    // #####################
+    // # Flow
+    // #####################
     value: function onRemoveItem(idx) {
       var _state$get2 = this.state.get();
 
@@ -647,10 +882,24 @@ var RemovableItems = (function () {
       this.state.set({ items: clone });
     }
   }, {
+    key: 'afterStateChange',
+
+    // #####################
+    // # Dealing with state change
+    // #####################
+    value: function afterStateChange(k, v, mutated) {
+      if (k === 'items' && mutated) {
+        var onChange = this.props.onChange;
+
+        onChange(v);
+        this.updateView();
+      }
+    }
+  }, {
     key: 'createElement',
 
     // #####################
-    // # Render
+    // # Create Element
     // #####################
     value: function createElement() {
       var _this = this;
@@ -674,6 +923,11 @@ var RemovableItems = (function () {
     }
   }, {
     key: 'updateView',
+
+    // #####################
+    // # Udpdate View
+    // #####################
+
     value: function updateView() {
       var node = this.mountNode;
 
@@ -688,6 +942,32 @@ var RemovableItems = (function () {
     }
   }]);
 
+  return RemovableItemsPrivate;
+})();
+
+/**
+ * Public interface
+ */
+
+var RemovableItems = (function () {
+  function RemovableItems(props) {
+    _classCallCheck(this, RemovableItems);
+
+    this.__private = new RemovableItemsPrivate(props);
+  }
+
+  _createClass(RemovableItems, [{
+    key: 'addItem',
+    value: function addItem(item) {
+      return this.__private.addItem(item);
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement() {
+      return this.__private.createElement();
+    }
+  }]);
+
   return RemovableItems;
 })();
 /* jshint esnext: true */
@@ -698,12 +978,12 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var SelectableItems = (function () {
-  function SelectableItems(_ref) {
+var SelectableItemsPrivate = (function () {
+  function SelectableItemsPrivate(_ref) {
     var onChange = _ref.onChange;
     var items = _ref.items;
 
-    _classCallCheck(this, SelectableItems);
+    _classCallCheck(this, SelectableItemsPrivate);
 
     this.bound = {
       onItemSelected: function onItemSelected(item) {
@@ -717,12 +997,17 @@ var SelectableItems = (function () {
       } });
   }
 
-  _createClass(SelectableItems, [{
-    key: 'afterStateChange',
-    value: function afterStateChange(k, v, mutated) {
-      if (['items', 'filterFn'].includes(k) && mutated) {
-        this.updateView();
+  _createClass(SelectableItemsPrivate, [{
+    key: 'setItems',
+
+    // #####################
+    // # Public Accessors
+    // #####################
+    value: function setItems(_) {
+      if (!Array.isArray(_)) {
+        throw new TypeError('SelectableItems.setItems expects an \'Array\' as argument ' + _);
       }
+      this.state.set({ items: _ });
     }
   }, {
     key: 'setFilterFn',
@@ -733,10 +1018,21 @@ var SelectableItems = (function () {
       this.state.set({ filterFn: _ });
     }
   }, {
+    key: 'afterStateChange',
+
+    // #####################
+    // # Dealing with state change
+    // #####################
+    value: function afterStateChange(k, v, mutated) {
+      if (['items', 'filterFn'].includes(k) && mutated) {
+        this.updateView();
+      }
+    }
+  }, {
     key: 'createElement',
 
     // #####################
-    // # createElement
+    // # Create Element
     // #####################
     value: function createElement() {
       var _this = this;
@@ -761,7 +1057,7 @@ var SelectableItems = (function () {
     key: 'updateView',
 
     // #####################
-    // # createElement
+    // # Update View
     // #####################
     value: function updateView() {
       var node = this.mountNode;
@@ -776,6 +1072,37 @@ var SelectableItems = (function () {
         return '<item>' + d + '</item>';
       }).join(' ');
       return node;
+    }
+  }]);
+
+  return SelectableItemsPrivate;
+})();
+
+/**
+ * Public interface
+ */
+
+var SelectableItems = (function () {
+  function SelectableItems(props) {
+    _classCallCheck(this, SelectableItems);
+
+    this.__private = new SelectableItemsPrivate(props);
+  }
+
+  _createClass(SelectableItems, [{
+    key: 'setItems',
+    value: function setItems(_) {
+      return this.__private.setItems(_);
+    }
+  }, {
+    key: 'setFilterFn',
+    value: function setFilterFn(_) {
+      return this.__private.setFilterFn(_);
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement() {
+      return this.__private.createElement();
     }
   }]);
 
@@ -794,11 +1121,11 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var PageNavigator = (function () {
-  function PageNavigator(_ref) {
+var PageNavigatorPrivate = (function () {
+  function PageNavigatorPrivate(_ref) {
     var onChange = _ref.onChange;
 
-    _classCallCheck(this, PageNavigator);
+    _classCallCheck(this, PageNavigatorPrivate);
 
     this.props = { onChange: onChange };
     this.bound = { onPageClick: this.onPageClick.bind(this) };
@@ -806,15 +1133,24 @@ var PageNavigator = (function () {
     this.state.setInitial({ pages: [], activeIdx: 0 });
   }
 
-  _createClass(PageNavigator, [{
-    key: 'afterStateChange',
-    value: function afterStateChange(k, v, mutated, oldV) {
-      if (['pages', 'activeIdx'].includes(k)) {
-        this.updateView();
+  _createClass(PageNavigatorPrivate, [{
+    key: 'setPages',
+
+    // #####################
+    // # Public Accessors
+    // #####################
+    value: function setPages(pages, activeIdx) {
+      if (!pages.includes(activeIdx)) {
+        activeIdx = 0;
       }
+      this.state.set({ pages: pages, activeIdx: activeIdx });
     }
   }, {
     key: 'onPageClick',
+
+    // #####################
+    // # Flow
+    // #####################
     value: function onPageClick(e) {
       var onChange = this.props.onChange;
 
@@ -828,15 +1164,22 @@ var PageNavigator = (function () {
       }
     }
   }, {
-    key: 'setPages',
-    value: function setPages(pages, activeIdx) {
-      if (!pages.includes(activeIdx)) {
-        activeIdx = 0;
+    key: 'afterStateChange',
+
+    // #####################
+    // # Dealing with state change
+    // #####################
+    value: function afterStateChange(k, v, mutated, oldV) {
+      if (['pages', 'activeIdx'].includes(k)) {
+        this.updateView();
       }
-      this.state.set({ pages: pages, activeIdx: activeIdx });
     }
   }, {
     key: 'createElement',
+
+    // #####################
+    // # Create Element
+    // #####################
     value: function createElement() {
       if (!this.mountNode) {
         var node = document.createElement('page-navigator');
@@ -848,6 +1191,10 @@ var PageNavigator = (function () {
     }
   }, {
     key: 'updateView',
+
+    // #####################
+    // # Update View
+    // #####################
     value: function updateView() {
       var node = this.mountNode;
 
@@ -862,6 +1209,32 @@ var PageNavigator = (function () {
         return d !== '...' ? '<item data-idx=' + idx + dataActive + '>' + d + '</item>' : d;
       }).join(' ');
       return node;
+    }
+  }]);
+
+  return PageNavigatorPrivate;
+})();
+
+/**
+ * Public interface
+ */
+
+var PageNavigator = (function () {
+  function PageNavigator(props) {
+    _classCallCheck(this, PageNavigator);
+
+    this.__private = new PageNavigatorPrivate(props);
+  }
+
+  _createClass(PageNavigator, [{
+    key: 'setPages',
+    value: function setPages(pages, activeIdx) {
+      return this.__private.setPages(pages, activeIdx);
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement() {
+      return this.__private.createElement();
     }
   }]);
 
@@ -1172,6 +1545,39 @@ var StateManager = (function () {
   }]);
 
   return StateManager;
+})();
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+// requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+// MIT license
+
+'use strict';
+
+(function () {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function (callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function () {
+                callback(currTime + timeToCall);
+            }, timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+    }
+
+    if (!window.cancelAnimationFrame) {
+        window.cancelAnimationFrame = function (id) {
+            clearTimeout(id);
+        };
+    }
 })();
 'use strict';
 

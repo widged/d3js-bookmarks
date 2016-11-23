@@ -18,6 +18,7 @@
 	<script src="es6/utils/StateManager.es6.js"></script>
 	<script src="es6/utils/DecodeQueryString.es6.js"></script>
 	<script src="es6/BookmarksImporter.es6.js"></script>
+	<script src="es6/BookmarkItem.es6.js"></script>
 	<script src="es6/ItemList.es6.js"></script>
 	<script src="es6/page-navigator/es6/PageNavigator.es6.js"></script>
 	<script src="es6/page-navigator/es6/pagination-algorithm.es6.js"></script>
@@ -28,10 +29,10 @@
 
 	<script>
 	var q = getQueryString();
-	var {tags, terms} = decodeQuery(q);
+	var {tags, terms, nopic} = decodeQuery(q);
 	tags  = (typeof tags  === 'string') ? tags.split(';') : [];
 	terms = (typeof terms === 'string') ? terms.split(';') : [];
-	var app = new BookmarkExplorer({itemsPerPage: 48, paginationDelta: 4, tags, terms});
+	var app = new BookmarkExplorer({itemsPerPage: 48, paginationDelta: 4, tags, terms, nopic});
 	document.getElementById('app').appendChild(app.createElement());
 	</script>
 

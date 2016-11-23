@@ -3,7 +3,7 @@
 
 class BookmarkExplorerPrivate {
 
-  constructor({itemsPerPage, paginationDelta, tags, terms}) {
+  constructor({itemsPerPage, paginationDelta, tags, terms, nopic}) {
     if(!Array.isArray(tags)) { tags = []; }
     if(!Array.isArray(terms)) { terms = []; }
     this.props = Object.assign({itemsPerPage, paginationDelta}, { itemsPerPage : 48, paginationDelta: 4 });
@@ -12,7 +12,7 @@ class BookmarkExplorerPrivate {
     };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({db: [], allTags: [], allTerms: [], queried: [], tags, terms, activePage: 0, pageQty: 0, firstIdx: 0 });
+    this.state.setInitial({db: [], allTags: [], allTerms: [], nopic, queried: [], tags, terms, activePage: 0, pageQty: 0, firstIdx: 0 });
     var importer = new BookmarksImporter();
     importer.load('etc/data/vs-assets.tsv', ({db, tags: aTags, terms: aTerms}) => {
       this.state.set({db, allTags: aTags, allTerms: aTerms});
@@ -29,7 +29,9 @@ class BookmarkExplorerPrivate {
         onChange: (terms) => { this.state.set({terms}); },
         selectedItems: terms
       }),
-      itemList  : new ItemList(),
+      itemList  : new ItemList({
+        ItemRenderer: BookmarkItem
+      }),
       pageNavigator: new PageNavigator({
         onChange: (pageIdx) => { this.state.set({activePage: pageIdx}); }
       })
@@ -86,7 +88,7 @@ class BookmarkExplorerPrivate {
   // # Main
   // #####################
   queryDb() {
-    const {db, tags: sTags, terms: sTerms} = this.state.get();
+    const {db, tags: sTags, terms: sTerms, nopic} = this.state.get();
     var options = {};
     // get options
     var hasTags  = (sTags  && Array.isArray(sTags)  && sTags.length > 0);
@@ -96,6 +98,7 @@ class BookmarkExplorerPrivate {
       searchFn = (d) => {
         var {tags, terms} = d;
         var isIn = true;
+        if (nopic === "true") { return !d.fmt }
         if (hasTags  && !Haystack.allOf(tags, sTags))   { isIn = false; }
         if (hasTerms && !Haystack.allOf(terms, sTerms)) { isIn = false; }
         return isIn;

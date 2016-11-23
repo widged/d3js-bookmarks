@@ -15,14 +15,8 @@ class BookmarksImporter {
           terms = (terms || '').split(';');
           terms.forEach((t) => { aTerms.add(t); });
           others = (others || '').split(';');
-          var url = 'http://bl.ocks.org/' + src;
-          var thumb = 'etc/snapshots/_no-pict.png';
-          if (fmt && fmt.indexOf('gst') !== -1) {
-            thumb = `https://gist.githubusercontent.com/${src}/raw/thumbnail.png`;
-          } else if (fmt && fmt.indexOf('s') !== -1) {
-            thumb = `etc/snapshots/raw_${src.replace('/','-')}.png`;
-          }
-          var doc = {src: url, thumb, fmt, tags, terms: terms, others};
+
+          var doc = {src, fmt, tags, terms, others};
           acc.push(doc);
         }
         return acc;
