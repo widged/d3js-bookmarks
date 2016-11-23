@@ -2,12 +2,13 @@
 
 class SelectableItems {
 
-  constructor({onChange}) {
+  constructor({onChange, items}) {
     this.bound = {
       onItemSelected: (item) => { onChange(item); }
     };
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ items: [], filterFn: () => { return true; } });
+    items = (Array.isArray(items)) ? items.slice(0) : items = [];
+    this.state.setInitial({ items, filterFn: () => { return true; } });
   }
 
   afterStateChange(k, v, mutated) {
@@ -16,8 +17,9 @@ class SelectableItems {
     }
   }
 
-  setItems(_)    { this.state.set({items: _.slice(0) }); }
-  setFilterFn(_) { this.state.set({filterFn: _}); }
+  setFilterFn(_) {
+    if(typeof _ !== 'function') { throw new TypeError(`SelectableItems.setFilterFn expects a 'function' as argument`); }
+    this.state.set({filterFn: _}); }
 
   // #####################
   // # createElement

@@ -10,7 +10,7 @@ class PageNavigator {
   }
 
   afterStateChange(k, v, mutated, oldV) {
-    if(k === 'pages') {
+    if(['pages','activeIdx'].includes(k)) {
       this.updateView();
     }
   }
@@ -27,7 +27,10 @@ class PageNavigator {
     }
   }
 
-  setPages(pages, activeIdx)  { this.state.set({pages, activeIdx}); }
+  setPages(pages, activeIdx)  {
+    if(!pages.includes(activeIdx)) { activeIdx = 0; }
+    this.state.set({pages, activeIdx});
+  }
 
   createElement() {
     if(!this.mountNode) {

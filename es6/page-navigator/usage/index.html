@@ -9,16 +9,16 @@
 	<div id="app"></div>
 
 	<!-- <script src="bundle.js"></script> -->
-	<script src="../../StateManager.es6.js"></script>
+	<script src="../../utils/StateManager.es6.js"></script>
   <script src="../es6/pagination-algorithm.es6.js"></script>
 	<script src="../es6/PageNavigator.es6.js"></script>
 
 	<script>
   for(let i = 0, ni = 10; i < ni; i++) {
     var app = new PageNavigator({onChange: (items) => { console.log(items) }});
-  	document.getElementById('app').appendChild(app.render());
+  	document.getElementById('app').appendChild(app.createElement());
     var pages = paginationAlgorithm(i, 10, 2);
-    app.setPages(pages);
+    app.setPages(pages, i);
   }
 	</script>
 

@@ -9,19 +9,22 @@
 	<div id="app"></div>
 
 	<!-- <script src="bundle.js"></script> -->
-	<script src="../../StateManager.es6.js"></script>
+	<script src="../../utils/StateManager.es6.js"></script>
 	<script src="./lorem.js"></script>
 	<script src="../es6/SelectableItems.es6.js"></script>
 
 	<script>
-	var app = new SelectableItems({onChange: (items) => { console.log(items) }});
-	document.getElementById('app').appendChild(app.render());
+	var app = new SelectableItems({
+		items: lorem.split(/\s+/).slice(0,50),
+		onChange: (items) => { console.log(items) }
+	});
+	document.getElementById('app').appendChild(app.createElement());
 	app.setFilter = (d) => {
 		// this.filterInFragment(fragment))
 		// this.filterOutValues(values)
 		return true;
 	}
-	app.setItems(lorem.split(/\s+/).slice(0,50));
+
 
 	</script>
 

@@ -41,13 +41,7 @@ var BookmarkExplorer = (function () {
       _this.state.set({ db: db, allTags: aTags, allTerms: aTerms });
     });
 
-    console.log(terms);
-
     this.refs = {
-      itemList: new ItemList(),
-      pageNavigator: new PageNavigator({ onChange: function onChange(pageIdx) {
-          _this.state.set({ activePage: pageIdx });
-        } }),
       tagSelect: new MultiSelect({
         placeholder: 'tags',
         onChange: function onChange(tags) {
@@ -61,6 +55,12 @@ var BookmarkExplorer = (function () {
           _this.state.set({ terms: terms });
         },
         selectedItems: terms
+      }),
+      itemList: new ItemList(),
+      pageNavigator: new PageNavigator({
+        onChange: function onChange(pageIdx) {
+          _this.state.set({ activePage: pageIdx });
+        }
       })
     };
   }
@@ -106,7 +106,7 @@ var BookmarkExplorer = (function () {
 
       if (k === 'items') {
         this.refs.itemList.setItems(v);
-        this.render();
+        this.updateView();
       }
 
       if (['activePage', 'pageQty'].includes(k)) {
@@ -121,7 +121,7 @@ var BookmarkExplorer = (function () {
         var _pageQty = _state$get2.pageQty;
 
         var pages = paginationAlgorithm(activePage, _pageQty, paginationDelta);
-        pageNavigator.setPages(pages);
+        pageNavigator.setPages(pages, activePage);
         this.state.set({ firstIdx: itemsPerPage * activePage });
       }
 
@@ -170,34 +170,39 @@ var BookmarkExplorer = (function () {
       this.state.set({ queried: queried });
     }
   }, {
-    key: 'render',
-    value: function render() {
+    key: 'createElement',
 
-      if (!this.node) {
-        this.node = document.createElement('bookmark-explorer');
-        var _node = this.node;
-        _node.innerHTML = '\n            <div class="query-options">\n      \t\t\t\t<div class="tags"> </div>\n      \t\t\t\t<div class="terms"> </div>\n      \t\t\t</div>\n            <div class="item-list"></div>\n            <div class="pageNavigator"></div>\n        ';
+    // #####################
+    // # Render
+    // #####################
+    value: function createElement() {
+      if (!this.mountNode) {
+        var _refs = this.refs;
+        var itemList = _refs.itemList;
+        var pageNavigator = _refs.pageNavigator;
+        var tagSelect = _refs.tagSelect;
+        var termSelect = _refs.termSelect;
+
+        var node = document.createElement('bookmark-explorer');
+        node.innerHTML = '\n<div class="query-options">\n\t<div class="tags"> </div>\n\t<div class="terms"> </div>\n</div>\n<div class="item-list"></div>\n<div class="pageNavigator"></div>';
+        node.querySelector('.query-options .tags').appendChild(tagSelect.createElement());
+        node.querySelector('.query-options .terms').appendChild(termSelect.createElement());
+        node.querySelector('.item-list').appendChild(itemList.createElement());
+        node.querySelector('.pageNavigator').appendChild(pageNavigator.createElement());
+        this.mountNode = node;
       }
-
-      var node = this.node;
-      var _refs = this.refs;
-      var itemList = _refs.itemList;
-      var pageNavigator = _refs.pageNavigator;
-      var tagSelect = _refs.tagSelect;
-      var termSelect = _refs.termSelect;
-
-      mount(node.querySelector('.item-list'), itemList.render());
-      mount(node.querySelector('.pageNavigator'), pageNavigator.render());
-      mount(node.querySelector('.query-options .tags'), tagSelect.render());
-      mount(node.querySelector('.query-options .terms'), termSelect.render());
-      return node;
+      this.updateView();
+      return this.mountNode;
     }
+  }, {
+    key: 'updateView',
+    value: function updateView() {}
   }]);
 
   return BookmarkExplorer;
 })();
 
-function mount(node, component) {
+function replaceChild(node, component) {
   node.innerHTML = '';
   node.appendChild(component);
 }
@@ -236,20 +241,19 @@ var BookmarksImporter = (function () {
             var terms = _d$split2[3];
             var others = _d$split2[4];
 
-            tags = tags.split(';');
+            tags = (tags || '').split(';');
             tags.forEach(function (t) {
               aTags.add(t);
             });
-            terms = terms.split(';');
+            terms = (terms || '').split(';');
             terms.forEach(function (t) {
               aTerms.add(t);
             });
-            others = others.split(';');
+            others = (others || '').split(';');
             var url = 'http://bl.ocks.org/' + src;
             var thumb = 'etc/snapshots/_no-pict.png';
-            if (fmt && fmt.indexOf('gtb:') !== -1) {
-              var rid = fmt.replace('gtb:', '');
-              thumb = 'https://gist.githubusercontent.com/' + src + '/raw/' + rid + '/thumbnail.png';
+            if (fmt && fmt.indexOf('g') !== -1) {
+              thumb = 'https://gist.githubusercontent.com/' + src + '/raw/thumbnail.png';
             } else if (fmt && fmt.indexOf('s') !== -1) {
               thumb = 'etc/snapshots/raw_' + src.replace('/', '-') + '.png';
             }
@@ -286,7 +290,7 @@ var ItemList = (function () {
     key: 'afterStateChange',
     value: function afterStateChange(k, v, oldV) {
       if (k === 'items') {
-        this.render();
+        this.updateView();
       }
     }
   }, {
@@ -295,21 +299,21 @@ var ItemList = (function () {
       this.state.set({ items: _ });
     }
   }, {
-    key: 'render',
-    value: function render() {
-      var itemNode = function itemNode(d) {
-        return d && d.length ? '<item>' + d + '</item>' : '';
-      };
-      var state = this.state;
+    key: 'createElement',
 
-      if (!this.node) {
-        this.node = document.createElement('item-list');
-        this.node.addEventListener('click', function (e) {
+    // #####################
+    // # Render
+    // #####################
+    value: function createElement() {
+      var _this = this;
+
+      if (!this.mountNode) {
+        var node = document.createElement('item-list');
+        node.addEventListener('click', function (e) {
           var type = e.target.dataset.src;
-
           if (type) {
             var idx = e.target.dataset.idx;
-            var src = state.get().items[idx].src;
+            var src = _this.state.get().items[idx].src;
             if (type === 'block') {}
             if (type === 'gist') {
               src = src.replace('bl.ocks.org', 'gist.github.com');
@@ -320,20 +324,29 @@ var ItemList = (function () {
             window.open(src, '_blank');
           }
         });
+        this.mountNode = node;
       }
+      this.updateView();
+      return this.mountNode;
+    }
+  }, {
+    key: 'updateView',
+    value: function updateView() {
+      var node = this.mountNode;
+      var itemNode = function itemNode(d) {
+        return d && d.length ? '<item>' + d + '</item>' : '';
+      };
 
-      var _state$get = state.get();
+      var _state$get = this.state.get();
 
       var items = _state$get.items;
 
-      var node = this.node;
       var nodes = items.map(function (d, i) {
         var tags = d.tags.map(itemNode).join(' ');
         var terms = d.terms.map(itemNode).join(' ');
         var others = d.others.map(itemNode).join(' ');
         var thumbPath = d.thumb;
-        var blockLinks = '<div>\n  <span data-src="gist" data-idx="' + i + '">gist</span> \n  (<span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>)\n</div>';
-
+        var blockLinks = '<div>\n  <span data-src="gist" data-idx="' + i + '">gist</span>\n  (<span data-src="block" data-idx="' + i + '">block</span>,\n  <span data-src="inlet" data-idx="' + i + '">inlet</span>)\n</div>';
         return '<item>\n  <div class="asset-item">\n    <div class="preview">\n      <div class="thumb"><img data-path="' + thumbPath + '" src="' + thumbPath + '" alt="svg"></div>\n      <div class="links">' + blockLinks + '</div>\n    </div>\n    <div class="desc">\n      <div class="tagged tags">' + tags + '</div>\n      <div class="tagged terms">' + terms + '</div>\n      <div class="tagged others">' + others + '</div>\n    </div>\n  </div>\n</item>';
       });
       node.innerHTML = nodes.join('\n');
@@ -364,56 +377,62 @@ var MultiSelect = (function () {
     _classCallCheck(this, MultiSelect);
 
     this.props = { placeholder: placeholder, onChange: onChange };
-    this.debounced = {
-      updateFilter: new Debouncer(50, this.updateFilter.bind(this))
-    };
-    this.bound = {
-      onActivated: this.onActivated.bind(this),
-      onDisactivated: this.onDisactivated.bind(this),
-      onFragmentChange: this.onFragmentChange.bind(this)
-    };
-    this.comps = {
-      removable: new RemovableItems({ onChange: this.onRemovedChange.bind(this) }),
-      selectable: new SelectableItems({ onChange: this.onItemAdded.bind(this) })
-    };
 
     this.state = new StateManager(this.afterStateChange.bind(this));
     if (!Array.isArray(selectedItems)) {
       selectedItems = [];
     }
-    selectedItems.forEach(function (d) {
-      _this.comps.removable.addItem(d);
-    });
     this.state.setInitial({ fragment: '', selectedItems: selectedItems, active: false });
+
+    this.debounced = {
+      updateFilter: new Debouncer(50, this.updateFilter.bind(this))
+    };
+    this.bound = ['onActivated', 'onDisactivated', 'onFragmentChange', 'onRemovedChange', 'onItemAdded'].reduce(function (acc, k) {
+      acc[k] = _this[k].bind(_this);return acc;
+    }, {});
+    this.refs = {
+      selection: new RemovableItems({ onChange: this.bound.onRemovedChange, items: this.state.get().selectedItems }),
+      selectable: new SelectableItems({ onChange: this.bound.onItemAdded })
+    };
   }
 
   _createClass(MultiSelect, [{
     key: 'setSelectableItems',
+
+    // #####################
+    // # Pseudo accessors
+    // #####################
     value: function setSelectableItems(_) {
-      var selectable = this.comps.selectable;
+      var selectable = this.refs.selectable;
 
       selectable.setItems(_);
     }
   }, {
     key: 'afterStateChange',
-    value: function afterStateChange(k, v, mutated) {
-      if (k === 'active' && mutated) {
-        this.render();
-      }
 
+    // #####################
+    // # Dealing with state change
+    // #####################
+    value: function afterStateChange(k, v, mutated) {
       if (['fragment', 'selectedItems'].includes(k)) {
         this.debounced.updateFilter.trigger();
-        this.render();
       }
-
       if (['selectedItems'].includes(k)) {
         var onChange = this.props.onChange;
 
-        onChange(this.state.get().selectedItems);
+        onChange(v);
+        this.updateView();
+      }
+      if (['active', 'fragment'].includes(k)) {
+        this.updateView();
       }
     }
   }, {
     key: 'onDisactivated',
+
+    // #####################
+    // # Flow
+    // #####################
     value: function onDisactivated() {
       this.state.set({ active: false });
     }
@@ -430,42 +449,28 @@ var MultiSelect = (function () {
   }, {
     key: 'onItemAdded',
     value: function onItemAdded(item) {
-      var _comps = this.comps;
-      var removable = _comps.removable;
-      var input = _comps.input;
-
       this.state.set({ fragment: '' });
-      removable.addItem(item);
+      this.refs.selection.addItem(item);
     }
   }, {
     key: 'onRemovedChange',
     value: function onRemovedChange(items) {
-      var _comps2 = this.comps;
-      var removable = _comps2.removable;
-      var selectable = _comps2.selectable;
+      this.state.set({ selectedItems: items });
+    }
+  }, {
+    key: 'updateFilter',
+
+    // #####################
+    // # Main
+    // #####################
+
+    value: function updateFilter() {
+      var selectable = this.refs.selectable;
 
       var _state$get = this.state.get();
 
       var fragment = _state$get.fragment;
-
-      this.state.set({ selectedItems: items });
-    }
-  }, {
-    key: 'dispatchChange',
-    value: function dispatchChange() {
-      var onChange = this.props.onChange;
-
-      onChange(items);
-    }
-  }, {
-    key: 'updateFilter',
-    value: function updateFilter() {
-      var selectable = this.comps.selectable;
-
-      var _state$get2 = this.state.get();
-
-      var fragment = _state$get2.fragment;
-      var selectedItems = _state$get2.selectedItems;
+      var selectedItems = _state$get.selectedItems;
 
       selectable.setFilterFn(function (d) {
         var included = false;
@@ -481,54 +486,84 @@ var MultiSelect = (function () {
       });
     }
   }, {
-    key: 'render',
-    value: function render() {
-      var placeholder = this.props.placeholder;
-      var _bound = this.bound;
-      var onDisactivated = _bound.onDisactivated;
-      var onActivated = _bound.onActivated;
-      var onFragmentChange = _bound.onFragmentChange;
+    key: 'createElement',
 
-      if (!this.node) {
-        this.node = document.createElement('multi-select');
-        var _node = this.node;
-        if (typeof placeholder !== 'string') {
-          placeholder = '';
-        }
-        _node.innerHTML = '\n  <div class="removable"></div>\n  <div class="input"><input placeholder="' + placeholder + '" data-fragment></input></div>\n  <div class="selectable"></div>\n  ';
+    // #####################
+    // # Render
+    // #####################
+    value: function createElement() {
+      var _this2 = this;
 
-        _node.addEventListener('mouseleave', function (evt) {
-          onDisactivated();
-        }, false);
-        _node.addEventListener('click', function (evt) {
-          var d = evt.target.dataset.fragment;
-          if (d !== undefined) {
-            onActivated();
+      if (!this.mountNode) {
+        var isFragment;
+
+        (function () {
+          var _bound = _this2.bound;
+          var onDisactivated = _bound.onDisactivated;
+          var onActivated = _bound.onActivated;
+          var onFragmentChange = _bound.onFragmentChange;
+          var placeholder = _this2.props.placeholder;
+
+          if (typeof placeholder !== 'string') {
+            placeholder = '';
           }
-        });
-        _node.addEventListener('keyup', function (evt) {
-          var d = evt.target.dataset.fragment;
-          if (d !== undefined) {
-            onFragmentChange(evt.target.value);
-          }
-        });
+
+          var node = document.createElement('multi-select');
+          node.innerHTML = '\n<div class="selection"></div>\n<div class="input"><input placeholder="' + placeholder + '" data-fragment></input></div>\n<div class="selectable"></div>';
+
+          node.querySelector('.selection').appendChild(_this2.refs.selection.createElement());
+          node.querySelector('.selectable').appendChild(_this2.refs.selectable.createElement());
+
+          node.addEventListener('mouseleave', function (evt) {
+            onDisactivated();
+          }, false);
+
+          isFragment = function isFragment(target) {
+            return target.dataset.fragment !== undefined;
+          };
+
+          node.addEventListener('mouseover', function (evt) {
+            if (isFragment(evt.target)) {
+              onActivated();
+            }
+          });
+          node.addEventListener('keyup', function (evt) {
+            if (isFragment(evt.target)) {
+              onFragmentChange(evt.target.value);
+            }
+          });
+          _this2.mountNode = node;
+        })();
       }
-      var node = this.node;
+      this.updateView();
+      return this.mountNode;
+    }
+  }, {
+    key: 'updateView',
+    value: function updateView() {
 
-      var _state$get3 = this.state.get();
+      var node = this.mountNode;
 
-      var active = _state$get3.active;
-      var fragment = _state$get3.fragment;
+      var _state$get2 = this.state.get();
+
+      var active = _state$get2.active;
+      var fragment = _state$get2.fragment;
 
       var changed = this.state.changes();
-      var _comps3 = this.comps;
-      var selectable = _comps3.selectable;
-      var removable = _comps3.removable;
 
-      node.querySelector('.selectable').innerHTML = '';node.querySelector('.selectable').appendChild(selectable.render());
-      node.querySelector('.removable').innerHTML = '';node.querySelector('.removable').appendChild(removable.render());
-      node.querySelector('.input input').value = fragment;
-      setClassName(node.querySelector('.selectable').classList, 'inactive', !active);
+      // selection element
+      // input element
+      var inputNode = node.querySelector('.input input');
+      if (changed.includes(fragment)) {
+        inputNode.value = fragment;
+      }
+
+      // input element
+      var selectableNode = node.querySelector('.selectable');
+      if (changed.includes('active')) {
+        setClassName(selectableNode, 'inactive', !active);
+      }
+
       return node;
     }
   }]);
@@ -536,7 +571,17 @@ var MultiSelect = (function () {
   return MultiSelect;
 })();
 
-function setClassName(classList, name, isAdded) {
+// #####################
+// # Utilities
+// #####################
+
+function replaceChild(node, child) {
+  node.innerHTML = '';
+  node.appendChild(child);
+}
+
+function setClassName(node, name, isAdded) {
+  var classList = node.classList;
   if (!isAdded && classList.contains(name)) {
     classList.remove(name);
   } else if (isAdded && !classList.contains(name)) {
@@ -554,6 +599,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var RemovableItems = (function () {
   function RemovableItems(_ref) {
     var onChange = _ref.onChange;
+    var items = _ref.items;
 
     _classCallCheck(this, RemovableItems);
 
@@ -562,7 +608,10 @@ var RemovableItems = (function () {
       onRemoveItem: this.onRemoveItem.bind(this)
     };
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ items: [] });
+    if (!Array.isArray(items)) {
+      items = [];
+    }
+    this.state.setInitial({ items: items });
   }
 
   _createClass(RemovableItems, [{
@@ -572,7 +621,7 @@ var RemovableItems = (function () {
         var onChange = this.props.onChange;
 
         onChange(v);
-        this.render();
+        this.updateView();
       }
     }
   }, {
@@ -598,24 +647,35 @@ var RemovableItems = (function () {
       this.state.set({ items: clone });
     }
   }, {
-    key: 'render',
-    value: function render() {
+    key: 'createElement',
+
+    // #####################
+    // # Render
+    // #####################
+    value: function createElement() {
       var _this = this;
 
-      if (!this.node) {
+      if (!this.mountNode) {
         (function () {
           var onRemoveItem = _this.bound.onRemoveItem;
 
-          _this.node = document.createElement('removable-items');
-          _this.node.addEventListener('click', function (evt) {
+          var node = document.createElement('removable-items');
+          node.addEventListener('click', function (evt) {
             var idx = evt.target.dataset.removeidx;
             if (idx !== undefined) {
               onRemoveItem(parseInt(idx, 10));
             }
           });
+          _this.mountNode = node;
         })();
       }
-      var node = this.node;
+      this.updateView();
+      return this.mountNode;
+    }
+  }, {
+    key: 'updateView',
+    value: function updateView() {
+      var node = this.mountNode;
 
       var _state$get3 = this.state.get();
 
@@ -624,7 +684,6 @@ var RemovableItems = (function () {
       node.innerHTML = items.map(function (d, i) {
         return '<item>' + d + '<span data-removeidx="' + i + '">x</span></item>';
       }).join(' ');
-
       return node;
     }
   }]);
@@ -642,6 +701,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var SelectableItems = (function () {
   function SelectableItems(_ref) {
     var onChange = _ref.onChange;
+    var items = _ref.items;
 
     _classCallCheck(this, SelectableItems);
 
@@ -651,7 +711,8 @@ var SelectableItems = (function () {
       }
     };
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ items: [], filterFn: function filterFn() {
+    items = Array.isArray(items) ? items.slice(0) : items = [];
+    this.state.setInitial({ items: items, filterFn: function filterFn() {
         return true;
       } });
   }
@@ -659,41 +720,51 @@ var SelectableItems = (function () {
   _createClass(SelectableItems, [{
     key: 'afterStateChange',
     value: function afterStateChange(k, v, mutated) {
-      if (k === 'items' && mutated) {
-        this.render();
+      if (['items', 'filterFn'].includes(k) && mutated) {
+        this.updateView();
       }
-      if (k === 'filterFn' && mutated) {
-        this.render();
-      }
-    }
-  }, {
-    key: 'setItems',
-    value: function setItems(_) {
-      this.state.set({ items: _.slice(0) });
     }
   }, {
     key: 'setFilterFn',
     value: function setFilterFn(_) {
+      if (typeof _ !== 'function') {
+        throw new TypeError('SelectableItems.setFilterFn expects a \'function\' as argument');
+      }
       this.state.set({ filterFn: _ });
     }
   }, {
-    key: 'render',
-    value: function render() {
+    key: 'createElement',
+
+    // #####################
+    // # createElement
+    // #####################
+    value: function createElement() {
       var _this = this;
 
-      if (!this.node) {
+      if (!this.mountNode) {
         (function () {
           var onItemSelected = _this.bound.onItemSelected;
 
-          _this.node = document.createElement('selectable-items');
-          _this.node.addEventListener('click', function (evt) {
+          var node = document.createElement('selectable-items');
+          node.addEventListener('click', function (evt) {
             if (evt.target.nodeName === 'ITEM') {
               onItemSelected(evt.target.innerText);
             }
           });
+          _this.mountNode = node;
         })();
       }
-      var node = this.node;
+      this.updateView();
+      return this.mountNode;
+    }
+  }, {
+    key: 'updateView',
+
+    // #####################
+    // # createElement
+    // #####################
+    value: function updateView() {
+      var node = this.mountNode;
 
       var _state$get = this.state.get();
 
@@ -732,14 +803,14 @@ var PageNavigator = (function () {
     this.props = { onChange: onChange };
     this.bound = { onPageClick: this.onPageClick.bind(this) };
     this.state = new StateManager(this.afterStateChange.bind(this));
-    this.state.setInitial({ pages: [] });
+    this.state.setInitial({ pages: [], activeIdx: 0 });
   }
 
   _createClass(PageNavigator, [{
     key: 'afterStateChange',
     value: function afterStateChange(k, v, mutated, oldV) {
-      if (k === 'pages') {
-        this.render();
+      if (['pages', 'activeIdx'].includes(k)) {
+        this.updateView();
       }
     }
   }, {
@@ -750,30 +821,45 @@ var PageNavigator = (function () {
       if (typeof onChange === 'function') {
         var idx = e.target.dataset.idx;
         if (idx !== undefined) {
-          onChange(parseInt(idx, 10));
+          idx = parseInt(idx, 10);
+          this.state.set({ activeIdx: idx });
+          onChange(idx);
         }
       }
     }
   }, {
     key: 'setPages',
-    value: function setPages(_) {
-      this.state.set({ pages: _ });
+    value: function setPages(pages, activeIdx) {
+      if (!pages.includes(activeIdx)) {
+        activeIdx = 0;
+      }
+      this.state.set({ pages: pages, activeIdx: activeIdx });
     }
   }, {
-    key: 'render',
-    value: function render() {
-      if (!this.node) {
-        this.node = document.createElement('page-navigator');
-        this.node.addEventListener('click', this.bound.onPageClick);
+    key: 'createElement',
+    value: function createElement() {
+      if (!this.mountNode) {
+        var node = document.createElement('page-navigator');
+        node.addEventListener('click', this.bound.onPageClick);
+        this.mountNode = node;
       }
-      var node = this.node;
+      this.updateView();
+      return this.mountNode;
+    }
+  }, {
+    key: 'updateView',
+    value: function updateView() {
+      var node = this.mountNode;
 
       var _state$get = this.state.get();
 
       var pages = _state$get.pages;
+      var activeIdx = _state$get.activeIdx;
 
       node.innerHTML = pages.length < 2 ? '' : pages.map(function (d) {
-        return d !== '...' ? '<item data-idx=' + (d - 1) + '>' + d + '</item>' : d;
+        var idx = d - 1;
+        var dataActive = idx === activeIdx ? ' data-active' : '';
+        return d !== '...' ? '<item data-idx=' + idx + dataActive + '>' + d + '</item>' : d;
       }).join(' ');
       return node;
     }
@@ -1050,10 +1136,16 @@ var StateManager = (function () {
   }, {
     key: 'setInitial',
     value: function setInitial(obj) {
+      var _this2 = this;
+
       if (typeof obj !== 'object') {
         throw new TypeError('StateManager.set expects an object as parameter');
       }
       this.state = Object.assign(this.state, obj);
+      var keys = Object.keys(obj);
+      keys.forEach(function (k) {
+        _this2.changed.add(k);
+      });
     }
   }, {
     key: 'get',

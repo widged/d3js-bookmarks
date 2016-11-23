@@ -10,12 +10,12 @@
 
 	<!-- <script src="bundle.js"></script> -->
 	<script src="./lorem.js"></script>
-	<script src="../../StateManager.es6.js"></script>
+	<script src="../../utils/StateManager.es6.js"></script>
 	<script src="../es6/RemovableItems.es6.js"></script>
 
 	<script>
 	var app = new RemovableItems({onChange: (items) => { console.log(items) }});
-	document.getElementById('app').appendChild(app.render());
+	document.getElementById('app').appendChild(app.createElement());
 	lorem.split(/\s+/).slice(0,10).forEach((d) => {
 		app.addItem(d);
 	})

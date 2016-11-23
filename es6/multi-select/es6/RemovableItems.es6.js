@@ -8,6 +8,7 @@ class RemovableItems {
       onRemoveItem: this.onRemoveItem.bind(this)
     };
     this.state = new StateManager(this.afterStateChange.bind(this));
+    if(!Array.isArray(items)) { items = []; }
     this.state.setInitial({items});
   }
 
