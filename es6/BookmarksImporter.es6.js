@@ -17,7 +17,7 @@ class BookmarksImporter {
           others = (others || '').split(';');
           var url = 'http://bl.ocks.org/' + src;
           var thumb = 'etc/snapshots/_no-pict.png';
-          if (fmt && fmt.indexOf('g') !== -1) {
+          if (fmt && fmt.indexOf('gst') !== -1) {
             thumb = `https://gist.githubusercontent.com/${src}/raw/thumbnail.png`;
           } else if (fmt && fmt.indexOf('s') !== -1) {
             thumb = `etc/snapshots/raw_${src.replace('/','-')}.png`;

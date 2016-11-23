@@ -27,10 +27,11 @@ class MultiSelect {
   }
 
   // #####################
-  // # Pseudo accessors
+  // # Public Accessors
   // #####################
   setSelectableItems(_) {
     const {selectable} = this.refs;
+    if(!Array.isArray(_)) { throw new TypeError(`MultiSelect.setSelectableItems expects an 'Array' as argument ${_}`); }
     selectable.setItems(_);
   }
 
@@ -142,12 +143,6 @@ class MultiSelect {
 // #####################
 // # Utilities
 // #####################
-
-function replaceChild(node, child) {
-  node.innerHTML = '';
-  node.appendChild(child);
-}
-
 function setClassName(node, name, isAdded) {
   let classList = node.classList;
   if (!isAdded && classList.contains(name)) {

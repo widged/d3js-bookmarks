@@ -36,13 +36,48 @@ class BookmarkExplorer {
     };
   }
 
+  queryDb() {
+    const {db, tags: sTags, terms: sTerms} = this.state.get();
+    var options = {};
+    // get options
+    var hasTags  = (sTags  && Array.isArray(sTags)  && sTags.length > 0);
+    var hasTerms = (sTerms && Array.isArray(sTerms) && sTerms.length > 0);
+    var searchFn;
+    if (hasTags || hasTerms) {
+      searchFn = (d) => {
+        var {tags, terms} = d;
+        var isIn = true;
+        if (hasTags  && !Haystack.allOf(tags, sTags))   { isIn = false; }
+        if (hasTerms && !Haystack.allOf(terms, sTerms)) { isIn = false; }
+        return isIn;
+      };
+    }
+    // search
+    var queried = [];
+    if(searchFn === undefined) {
+      queried = Object.keys(db);
+    } else {
+      for(let i = 0, ni = db.length; i < ni; i++) {
+        if(searchFn === undefined || searchFn(db[i])) { queried.push(i); }
+      }
+    }
+    this.state.set({queried});
+  }
+
+  // #####################
+  // # Dealing with state change
+  // #####################
   afterStateChange(k, v, oldV) {
     if(['db','tags','terms'].includes(k)) {
       this.debounced.queryDb.trigger();
     }
 
-    if(k == 'allTags') { this.refs.tagSelect.setSelectableItems(v); }
-    if(k == 'allTerms') { this.refs.termSelect.setSelectableItems(v); }
+    if(k == 'allTags') {
+      this.refs.tagSelect.setSelectableItems(v);
+    }
+    if(k == 'allTerms') {
+      this.refs.termSelect.setSelectableItems(v);
+    }
     if(k == 'queried') {
       const {itemsPerPage} = this.props;
       var pageQty = Math.ceil(v.length / itemsPerPage);
@@ -75,36 +110,8 @@ class BookmarkExplorer {
     return v;
   }
 
-  queryDb() {
-    const {db, tags: sTags, terms: sTerms} = this.state.get();
-    var options = {};
-    // get options
-    var hasTags  = (sTags  && Array.isArray(sTags)  && sTags.length > 0);
-    var hasTerms = (sTerms && Array.isArray(sTerms) && sTerms.length > 0);
-    var searchFn;
-    if (hasTags || hasTerms) {
-      searchFn = (d) => {
-        var {tags, terms} = d;
-        var isIn = true;
-        if (hasTags  && !Haystack.allOf(tags, sTags))   { isIn = false; }
-        if (hasTerms && !Haystack.allOf(terms, sTerms)) { isIn = false; }
-        return isIn;
-      };
-    }
-    // search
-    var queried = [];
-    if(searchFn === undefined) {
-      queried = Object.keys(db);
-    } else {
-      for(let i = 0, ni = db.length; i < ni; i++) {
-        if(searchFn === undefined || searchFn(db[i])) { queried.push(i); }
-      }
-    }
-    this.state.set({queried});
-  }
-
   // #####################
-  // # Render
+  // # Create Element
   // #####################
   createElement() {
     if(!this.mountNode) {
@@ -127,11 +134,9 @@ class BookmarkExplorer {
     return this.mountNode;
   }
 
+  // #####################
+  // # Update View
+  // #####################
   updateView() { }
 
-}
-
-function replaceChild(node, component) {
-  node.innerHTML = '';
-  node.appendChild(component);
 }

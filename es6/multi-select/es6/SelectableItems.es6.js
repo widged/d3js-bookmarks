@@ -11,18 +11,29 @@ class SelectableItems {
     this.state.setInitial({ items, filterFn: () => { return true; } });
   }
 
+  // #####################
+  // # Public Accessors
+  // #####################
+  setItems(_) {
+    if(!Array.isArray(_)) { throw new TypeError(`SelectableItems.setItems expects an 'Array' as argument ${_}`); }
+    this.state.set({items: _});
+  }
+  setFilterFn(_) {
+    if(typeof _ !== 'function') { throw new TypeError(`SelectableItems.setFilterFn expects a 'function' as argument`); }
+    this.state.set({filterFn: _});
+  }
+
+  // #####################
+  // # Dealing with state change
+  // #####################
   afterStateChange(k, v, mutated) {
     if(['items', 'filterFn'].includes(k) && mutated) {
       this.updateView();
     }
   }
 
-  setFilterFn(_) {
-    if(typeof _ !== 'function') { throw new TypeError(`SelectableItems.setFilterFn expects a 'function' as argument`); }
-    this.state.set({filterFn: _}); }
-
   // #####################
-  // # createElement
+  // # Create Element
   // #####################
   createElement() {
     if(!this.mountNode) {
@@ -38,7 +49,7 @@ class SelectableItems {
   }
 
   // #####################
-  // # createElement
+  // # Update View
   // #####################
   updateView() {
     var node = this.mountNode;

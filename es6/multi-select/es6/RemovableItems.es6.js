@@ -12,14 +12,9 @@ class RemovableItems {
     this.state.setInitial({items});
   }
 
-  afterStateChange(k, v, mutated) {
-    if(k === 'items' && mutated) {
-      const {onChange} = this.props;
-      onChange(v);
-      this.updateView();
-    }
-  }
-
+  // #####################
+  // # Public Accessors
+  // #####################
   addItem(item) {
     var {items} =  this.state.get();
     if(!items.includes(item)) {
@@ -28,6 +23,9 @@ class RemovableItems {
     }
   }
 
+  // #####################
+  // # Flow
+  // #####################
   onRemoveItem(idx) {
     var {items} =  this.state.get();
     var clone = items.slice(0); clone.splice(idx, 1);
@@ -35,7 +33,18 @@ class RemovableItems {
   }
 
   // #####################
-  // # Render
+  // # Dealing with state change
+  // #####################
+  afterStateChange(k, v, mutated) {
+    if(k === 'items' && mutated) {
+      const {onChange} = this.props;
+      onChange(v);
+      this.updateView();
+    }
+  }
+
+  // #####################
+  // # Create Element
   // #####################
   createElement() {
     if(!this.mountNode) {
@@ -50,6 +59,10 @@ class RemovableItems {
     this.updateView();
     return this.mountNode;
   }
+
+  // #####################
+  // # Udpdate View
+  // #####################
 
   updateView() {
     let node = this.mountNode;
