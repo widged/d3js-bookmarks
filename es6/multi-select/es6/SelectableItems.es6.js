@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-class SelectableItems {
+class SelectableItemsPrivate {
 
   constructor({onChange, items}) {
     this.bound = {
@@ -58,4 +58,15 @@ class SelectableItems {
     node.innerHTML = activeOptions.map((d) => { return `<item>${d}</item>`; }).join(' ');
     return node;
   }
+}
+
+
+/**
+ * Public interface
+ */
+class SelectableItems {
+  constructor(props) { this.__private = new SelectableItemsPrivate(props); }
+  setItems(_)        { return this.__private.setItems(_); }
+  setFilterFn(_)     { return this.__private.setFilterFn(_); }
+  createElement()    { return this.__private.createElement(); }
 }

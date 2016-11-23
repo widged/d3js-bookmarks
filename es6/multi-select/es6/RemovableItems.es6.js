@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-class RemovableItems {
+class RemovableItemsPrivate {
 
   constructor({onChange, items}) {
     this.props = {onChange};
@@ -70,4 +70,13 @@ class RemovableItems {
     node.innerHTML = items.map((d, i) => { return `<item>${d}<span data-removeidx="${i}">x</span></item>`; }).join(' ');
     return node;
   }
+}
+
+/**
+ * Public interface
+ */
+class RemovableItems {
+  constructor(props) { this.__private = new RemovableItemsPrivate(props); }
+  addItem(item)  { return this.__private.addItem(item); }
+  createElement() { return this.__private.createElement(); }
 }

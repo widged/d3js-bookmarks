@@ -1,6 +1,9 @@
 /* jshint esnext: true */
 
-class PageNavigator {
+
+
+
+class PageNavigatorPrivate {
 
   constructor({onChange}) {
     this.props = {onChange};
@@ -9,12 +12,17 @@ class PageNavigator {
     this.state.setInitial({pages: [], activeIdx: 0});
   }
 
-  afterStateChange(k, v, mutated, oldV) {
-    if(['pages','activeIdx'].includes(k)) {
-      this.updateView();
-    }
+  // #####################
+  // # Public Accessors
+  // #####################
+  setPages(pages, activeIdx)  {
+    if(!pages.includes(activeIdx)) { activeIdx = 0; }
+    this.state.set({pages, activeIdx});
   }
 
+  // #####################
+  // # Flow
+  // #####################
   onPageClick(e) {
     const {onChange} = this.props;
     if(typeof onChange === 'function') {
@@ -27,11 +35,19 @@ class PageNavigator {
     }
   }
 
-  setPages(pages, activeIdx)  {
-    if(!pages.includes(activeIdx)) { activeIdx = 0; }
-    this.state.set({pages, activeIdx});
+  // #####################
+  // # Dealing with state change
+  // #####################
+  afterStateChange(k, v, mutated, oldV) {
+    if(['pages','activeIdx'].includes(k)) {
+      this.updateView();
+    }
   }
 
+
+  // #####################
+  // # Create Element
+  // #####################
   createElement() {
     if(!this.mountNode) {
       var node = document.createElement('page-navigator');
@@ -42,6 +58,9 @@ class PageNavigator {
     return this.mountNode;
   }
 
+  // #####################
+  // # Update View
+  // #####################
   updateView() {
     let node = this.mountNode;
     let {pages, activeIdx} = this.state.get();
@@ -52,6 +71,13 @@ class PageNavigator {
     }).join(' ');
     return node;
   }
+}
 
-
+/**
+ * Public interface
+ */
+class PageNavigator {
+  constructor(props) { this.__private = new PageNavigatorPrivate(props); }
+  setPages(pages, activeIdx)  { return this.__private.setPages(pages, activeIdx); }
+  createElement() { return this.__private.createElement(); }
 }

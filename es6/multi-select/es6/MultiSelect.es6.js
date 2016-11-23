@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-class MultiSelect {
+class MultiSelectPrivate {
 
   constructor({placeholder, onChange, selectedItems}) {
     this.props = {placeholder, onChange};
@@ -36,6 +36,20 @@ class MultiSelect {
   }
 
   // #####################
+  // # Flow
+  // #####################
+  onDisactivated()      { this.state.set({active: false}); }
+  onActivated()         { this.state.set({active: true}); }
+  onFragmentChange(str) { this.state.set({fragment: str}); }
+  onItemAdded(item) {
+    this.state.set({fragment: ''});
+    this.refs.selection.addItem(item);
+  }
+  onRemovedChange(items) {
+    this.state.set({selectedItems: items});
+  }
+
+  // #####################
   // # Dealing with state change
   // #####################
   afterStateChange(k, v, mutated) {
@@ -53,23 +67,8 @@ class MultiSelect {
   }
 
   // #####################
-  // # Flow
-  // #####################
-  onDisactivated()      { this.state.set({active: false}); }
-  onActivated()         { this.state.set({active: true}); }
-  onFragmentChange(str) { this.state.set({fragment: str}); }
-  onItemAdded(item) {
-    this.state.set({fragment: ''});
-    this.refs.selection.addItem(item);
-  }
-  onRemovedChange(items) {
-    this.state.set({selectedItems: items});
-  }
-
-  // #####################
   // # Main
   // #####################
-
   updateFilter() {
     let {selectable} = this.refs;
     let {fragment, selectedItems} = this.state.get();
@@ -84,7 +83,7 @@ class MultiSelect {
   }
 
   // #####################
-  // # Render
+  // # Create Element
   // #####################
   createElement() {
     if(!this.mountNode) {
@@ -116,6 +115,9 @@ class MultiSelect {
     return this.mountNode;
   }
 
+  // #####################
+  // # Update View
+  // #####################
   updateView() {
 
     let node = this.mountNode;
@@ -150,4 +152,13 @@ function setClassName(node, name, isAdded) {
   } else if(isAdded && !classList.contains(name)) {
     classList.add(name);
   }
+}
+
+/**
+ * Public interface
+ */
+class MultiSelect {
+  constructor(props) { this.__private = new MultiSelectPrivate(props); }
+  setSelectableItems(_)  { return this.__private.setSelectableItems(_); }
+  createElement() { return this.__private.createElement(); }
 }

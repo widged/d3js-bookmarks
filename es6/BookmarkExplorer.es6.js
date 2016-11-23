@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 
-class BookmarkExplorer {
+class BookmarkExplorerPrivate {
 
   constructor({itemsPerPage, paginationDelta, tags, terms}) {
     if(!Array.isArray(tags)) { tags = []; }
@@ -34,34 +34,6 @@ class BookmarkExplorer {
         onChange: (pageIdx) => { this.state.set({activePage: pageIdx}); }
       })
     };
-  }
-
-  queryDb() {
-    const {db, tags: sTags, terms: sTerms} = this.state.get();
-    var options = {};
-    // get options
-    var hasTags  = (sTags  && Array.isArray(sTags)  && sTags.length > 0);
-    var hasTerms = (sTerms && Array.isArray(sTerms) && sTerms.length > 0);
-    var searchFn;
-    if (hasTags || hasTerms) {
-      searchFn = (d) => {
-        var {tags, terms} = d;
-        var isIn = true;
-        if (hasTags  && !Haystack.allOf(tags, sTags))   { isIn = false; }
-        if (hasTerms && !Haystack.allOf(terms, sTerms)) { isIn = false; }
-        return isIn;
-      };
-    }
-    // search
-    var queried = [];
-    if(searchFn === undefined) {
-      queried = Object.keys(db);
-    } else {
-      for(let i = 0, ni = db.length; i < ni; i++) {
-        if(searchFn === undefined || searchFn(db[i])) { queried.push(i); }
-      }
-    }
-    this.state.set({queried});
   }
 
   // #####################
@@ -111,6 +83,37 @@ class BookmarkExplorer {
   }
 
   // #####################
+  // # Main
+  // #####################
+  queryDb() {
+    const {db, tags: sTags, terms: sTerms} = this.state.get();
+    var options = {};
+    // get options
+    var hasTags  = (sTags  && Array.isArray(sTags)  && sTags.length > 0);
+    var hasTerms = (sTerms && Array.isArray(sTerms) && sTerms.length > 0);
+    var searchFn;
+    if (hasTags || hasTerms) {
+      searchFn = (d) => {
+        var {tags, terms} = d;
+        var isIn = true;
+        if (hasTags  && !Haystack.allOf(tags, sTags))   { isIn = false; }
+        if (hasTerms && !Haystack.allOf(terms, sTerms)) { isIn = false; }
+        return isIn;
+      };
+    }
+    // search
+    var queried = [];
+    if(searchFn === undefined) {
+      queried = Object.keys(db);
+    } else {
+      for(let i = 0, ni = db.length; i < ni; i++) {
+        if(searchFn === undefined || searchFn(db[i])) { queried.push(i); }
+      }
+    }
+    this.state.set({queried});
+  }
+
+  // #####################
   // # Create Element
   // #####################
   createElement() {
@@ -137,6 +140,16 @@ class BookmarkExplorer {
   // #####################
   // # Update View
   // #####################
-  updateView() { }
+  updateView() {
+    /* Nothing to do */
+  }
 
+}
+
+/**
+ * Public interface
+ */
+class BookmarkExplorer {
+  constructor(props) { this.__private = new BookmarkExplorerPrivate(props); }
+  createElement() { return this.__private.createElement(); }
 }
