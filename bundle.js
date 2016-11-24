@@ -71,9 +71,9 @@ var BookmarkExplorerPrivate = (function () {
   _createClass(BookmarkExplorerPrivate, [{
     key: 'afterStateChange',
 
-    // #####################
-    // # Dealing with state change
-    // #####################
+    // --------------------
+    // Dealing with state change
+    // --------------------
     value: function afterStateChange(k, v, oldV) {
       var _this2 = this;
 
@@ -137,9 +137,9 @@ var BookmarkExplorerPrivate = (function () {
   }, {
     key: 'queryDb',
 
-    // #####################
-    // # Main
-    // #####################
+    // --------------------
+    // Main
+    // --------------------
     value: function queryDb() {
       var _state$get3 = this.state.get();
 
@@ -187,9 +187,9 @@ var BookmarkExplorerPrivate = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
     value: function createElement() {
       if (!this.mountNode) {
         var _refs = this.refs;
@@ -212,9 +212,9 @@ var BookmarkExplorerPrivate = (function () {
   }, {
     key: 'updateView',
 
-    // #####################
-    // # Update View
-    // #####################
+    // --------------------
+    // Update View
+    // --------------------
     value: function updateView() {}
   }]);
 
@@ -273,18 +273,19 @@ var BookmarkItemPrivate = (function () {
   _createClass(BookmarkItemPrivate, [{
     key: 'setData',
 
-    // #####################
-    // # Public Accessors
-    // #####################
+    // --------------------
+    // Public Accessors
+    // --------------------
+
     value: function setData(_) {
       this.state.set({ data: _ });
     }
   }, {
     key: 'onLinkClick',
 
-    // #####################
-    // # Flow
-    // #####################
+    // --------------------
+    // Flow
+    // --------------------
     value: function onLinkClick(e) {
       var type = e.target.dataset.src;
       if (type) {
@@ -306,9 +307,10 @@ var BookmarkItemPrivate = (function () {
   }, {
     key: 'afterStateChange',
 
-    // #####################
-    // # Dealing with state change
-    // #####################
+    // --------------------
+    // Dealing with state change
+    // --------------------
+
     value: function afterStateChange(k, v, oldV) {
       if (k === 'data') {
         this.updateView();
@@ -317,9 +319,10 @@ var BookmarkItemPrivate = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
+
     value: function createElement() {
       var node = document.createElement('bookmark-item');
       node.addEventListener('click', this.bound.onLinkClick);
@@ -362,9 +365,10 @@ var BookmarkItemPrivate = (function () {
   }, {
     key: 'destroyElement',
 
-    // #####################
-    // # Destroy Element
-    // #####################
+    // --------------------
+    // Destroy Element
+    // --------------------
+
     value: function destroyElement() {}
   }]);
 
@@ -498,9 +502,9 @@ var ItemList = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
     value: function createElement() {
       if (!this.mountNode) {
         var node = document.createElement('item-list');
@@ -610,9 +614,9 @@ var MultiSelectPrivate = (function () {
   _createClass(MultiSelectPrivate, [{
     key: 'setSelectableItems',
 
-    // #####################
-    // # Public Accessors
-    // #####################
+    // --------------------
+    // Public Accessors
+    // --------------------
     value: function setSelectableItems(_) {
       var selectable = this.refs.selectable;
 
@@ -624,9 +628,9 @@ var MultiSelectPrivate = (function () {
   }, {
     key: 'onDisactivated',
 
-    // #####################
-    // # Flow
-    // #####################
+    // --------------------
+    // Flow
+    // --------------------
     value: function onDisactivated() {
       this.state.set({ active: false });
     }
@@ -654,9 +658,9 @@ var MultiSelectPrivate = (function () {
   }, {
     key: 'afterStateChange',
 
-    // #####################
-    // # Dealing with state change
-    // #####################
+    // --------------------
+    // Dealing with state change
+    // --------------------
     value: function afterStateChange(k, v, mutated) {
       if (['fragment', 'selectedItems'].includes(k)) {
         this.debounced.updateFilter.trigger();
@@ -674,9 +678,9 @@ var MultiSelectPrivate = (function () {
   }, {
     key: 'updateFilter',
 
-    // #####################
-    // # Main
-    // #####################
+    // --------------------
+    // Main
+    // --------------------
     value: function updateFilter() {
       var selectable = this.refs.selectable;
 
@@ -701,9 +705,9 @@ var MultiSelectPrivate = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
     value: function createElement() {
       var _this2 = this;
 
@@ -754,9 +758,9 @@ var MultiSelectPrivate = (function () {
   }, {
     key: 'updateView',
 
-    // #####################
-    // # Update View
-    // #####################
+    // --------------------
+    // Update View
+    // --------------------
     value: function updateView() {
 
       var node = this.mountNode;
@@ -788,9 +792,9 @@ var MultiSelectPrivate = (function () {
   return MultiSelectPrivate;
 })();
 
-// #####################
-// # Utilities
-// #####################
+// --------------------
+// Utilities
+// --------------------
 function setClassName(node, name, isAdded) {
   var classList = node.classList;
   if (!isAdded && classList.contains(name)) {
@@ -854,9 +858,9 @@ var RemovableItemsPrivate = (function () {
   _createClass(RemovableItemsPrivate, [{
     key: 'addItem',
 
-    // #####################
-    // # Public Accessors
-    // #####################
+    // --------------------
+    // Public Accessors
+    // --------------------
     value: function addItem(item) {
       var _state$get = this.state.get();
 
@@ -870,9 +874,9 @@ var RemovableItemsPrivate = (function () {
   }, {
     key: 'onRemoveItem',
 
-    // #####################
-    // # Flow
-    // #####################
+    // --------------------
+    // Flow
+    // --------------------
     value: function onRemoveItem(idx) {
       var _state$get2 = this.state.get();
 
@@ -884,9 +888,9 @@ var RemovableItemsPrivate = (function () {
   }, {
     key: 'afterStateChange',
 
-    // #####################
-    // # Dealing with state change
-    // #####################
+    // --------------------
+    // Dealing with state change
+    // --------------------
     value: function afterStateChange(k, v, mutated) {
       if (k === 'items' && mutated) {
         var onChange = this.props.onChange;
@@ -898,9 +902,9 @@ var RemovableItemsPrivate = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
     value: function createElement() {
       var _this = this;
 
@@ -924,10 +928,9 @@ var RemovableItemsPrivate = (function () {
   }, {
     key: 'updateView',
 
-    // #####################
-    // # Udpdate View
-    // #####################
-
+    // --------------------
+    // Update View
+    // --------------------
     value: function updateView() {
       var node = this.mountNode;
 
@@ -1000,9 +1003,9 @@ var SelectableItemsPrivate = (function () {
   _createClass(SelectableItemsPrivate, [{
     key: 'setItems',
 
-    // #####################
-    // # Public Accessors
-    // #####################
+    // --------------------
+    // Public Accessors
+    // --------------------
     value: function setItems(_) {
       if (!Array.isArray(_)) {
         throw new TypeError('SelectableItems.setItems expects an \'Array\' as argument ' + _);
@@ -1020,9 +1023,9 @@ var SelectableItemsPrivate = (function () {
   }, {
     key: 'afterStateChange',
 
-    // #####################
-    // # Dealing with state change
-    // #####################
+    // --------------------
+    // Dealing with state change
+    // --------------------
     value: function afterStateChange(k, v, mutated) {
       if (['items', 'filterFn'].includes(k) && mutated) {
         this.updateView();
@@ -1031,9 +1034,9 @@ var SelectableItemsPrivate = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
     value: function createElement() {
       var _this = this;
 
@@ -1056,9 +1059,9 @@ var SelectableItemsPrivate = (function () {
   }, {
     key: 'updateView',
 
-    // #####################
-    // # Update View
-    // #####################
+    // --------------------
+    // Update View
+    // --------------------
     value: function updateView() {
       var node = this.mountNode;
 
@@ -1136,9 +1139,9 @@ var PageNavigatorPrivate = (function () {
   _createClass(PageNavigatorPrivate, [{
     key: 'setPages',
 
-    // #####################
-    // # Public Accessors
-    // #####################
+    // --------------------
+    // Public Accessors
+    // --------------------
     value: function setPages(pages, activeIdx) {
       if (!pages.includes(activeIdx)) {
         activeIdx = 0;
@@ -1148,9 +1151,9 @@ var PageNavigatorPrivate = (function () {
   }, {
     key: 'onPageClick',
 
-    // #####################
-    // # Flow
-    // #####################
+    // --------------------
+    // Flow
+    // --------------------
     value: function onPageClick(e) {
       var onChange = this.props.onChange;
 
@@ -1166,9 +1169,9 @@ var PageNavigatorPrivate = (function () {
   }, {
     key: 'afterStateChange',
 
-    // #####################
-    // # Dealing with state change
-    // #####################
+    // --------------------
+    // Dealing with state change
+    // --------------------
     value: function afterStateChange(k, v, mutated, oldV) {
       if (['pages', 'activeIdx'].includes(k)) {
         this.updateView();
@@ -1177,9 +1180,9 @@ var PageNavigatorPrivate = (function () {
   }, {
     key: 'createElement',
 
-    // #####################
-    // # Create Element
-    // #####################
+    // --------------------
+    // Create Element
+    // --------------------
     value: function createElement() {
       if (!this.mountNode) {
         var node = document.createElement('page-navigator');
@@ -1192,9 +1195,9 @@ var PageNavigatorPrivate = (function () {
   }, {
     key: 'updateView',
 
-    // #####################
-    // # Update View
-    // #####################
+    // --------------------
+    // Update View
+    // --------------------
     value: function updateView() {
       var node = this.mountNode;
 

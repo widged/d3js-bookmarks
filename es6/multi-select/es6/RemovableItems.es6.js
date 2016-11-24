@@ -12,9 +12,9 @@ class RemovableItemsPrivate {
     this.state.setInitial({items});
   }
 
-  // #####################
-  // # Public Accessors
-  // #####################
+  // --------------------
+  // Public Accessors
+  // --------------------
   addItem(item) {
     var {items} =  this.state.get();
     if(!items.includes(item)) {
@@ -23,18 +23,18 @@ class RemovableItemsPrivate {
     }
   }
 
-  // #####################
-  // # Flow
-  // #####################
+  // --------------------
+  // Flow
+  // --------------------
   onRemoveItem(idx) {
     var {items} =  this.state.get();
     var clone = items.slice(0); clone.splice(idx, 1);
     this.state.set({items: clone });
   }
 
-  // #####################
-  // # Dealing with state change
-  // #####################
+  // --------------------
+  // Dealing with state change
+  // --------------------
   afterStateChange(k, v, mutated) {
     if(k === 'items' && mutated) {
       const {onChange} = this.props;
@@ -43,9 +43,9 @@ class RemovableItemsPrivate {
     }
   }
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
   createElement() {
     if(!this.mountNode) {
       const {onRemoveItem} = this.bound;
@@ -60,10 +60,9 @@ class RemovableItemsPrivate {
     return this.mountNode;
   }
 
-  // #####################
-  // # Udpdate View
-  // #####################
-
+  // --------------------
+  // Update View
+  // --------------------
   updateView() {
     let node = this.mountNode;
     const {items} = this.state.get();

@@ -38,9 +38,9 @@ class BookmarkExplorerPrivate {
     };
   }
 
-  // #####################
-  // # Dealing with state change
-  // #####################
+  // --------------------
+  // Dealing with state change
+  // --------------------
   afterStateChange(k, v, oldV) {
     if(['db','tags','terms'].includes(k)) {
       this.debounced.queryDb.trigger();
@@ -84,9 +84,9 @@ class BookmarkExplorerPrivate {
     return v;
   }
 
-  // #####################
-  // # Main
-  // #####################
+  // --------------------
+  // Main
+  // --------------------
   queryDb() {
     const {db, tags: sTags, terms: sTerms, nopic} = this.state.get();
     var options = {};
@@ -116,9 +116,9 @@ class BookmarkExplorerPrivate {
     this.state.set({queried});
   }
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
   createElement() {
     if(!this.mountNode) {
       const {itemList, pageNavigator, tagSelect, termSelect} = this.refs;
@@ -140,9 +140,9 @@ class BookmarkExplorerPrivate {
     return this.mountNode;
   }
 
-  // #####################
-  // # Update View
-  // #####################
+  // --------------------
+  // Update View
+  // --------------------
   updateView() {
     /* Nothing to do */
   }

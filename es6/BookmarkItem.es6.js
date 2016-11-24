@@ -10,14 +10,15 @@ class BookmarkItemPrivate {
     this.bound = ['onLinkClick'].reduce((acc, d) => { acc[d] = this[d].bind(this); return acc; }, {});
   }
 
-  // #####################
-  // # Public Accessors
-  // #####################
+  // --------------------
+  // Public Accessors
+  // --------------------
+
   setData(_) { this.state.set({data: _}); }
 
-  // #####################
-  // # Flow
-  // #####################
+  // --------------------
+  // Flow
+  // --------------------
   onLinkClick(e) {
       var type = e.target.dataset.src;
       if(type) {
@@ -30,9 +31,10 @@ class BookmarkItemPrivate {
       }
   }
 
-  // #####################
-  // # Dealing with state change
-  // #####################
+  // --------------------
+  // Dealing with state change
+  // --------------------
+
   afterStateChange(k, v, oldV) {
     if(k === 'data') {
       this.updateView();
@@ -41,9 +43,10 @@ class BookmarkItemPrivate {
 
 
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
+
   createElement() {
     let node = document.createElement('bookmark-item');
     node.addEventListener('click', this.bound.onLinkClick);
@@ -87,9 +90,10 @@ class BookmarkItemPrivate {
     </div>`;
   }
 
-  // #####################
-  // # Destroy Element
-  // #####################
+  // --------------------
+  // Destroy Element
+  // --------------------
+
   destroyElement() {
     // cleanup and remove any event listener
   }

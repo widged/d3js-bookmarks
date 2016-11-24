@@ -26,18 +26,18 @@ class MultiSelectPrivate {
 
   }
 
-  // #####################
-  // # Public Accessors
-  // #####################
+  // --------------------
+  // Public Accessors
+  // --------------------
   setSelectableItems(_) {
     const {selectable} = this.refs;
     if(!Array.isArray(_)) { throw new TypeError(`MultiSelect.setSelectableItems expects an 'Array' as argument ${_}`); }
     selectable.setItems(_);
   }
 
-  // #####################
-  // # Flow
-  // #####################
+  // --------------------
+  // Flow
+  // --------------------
   onDisactivated()      { this.state.set({active: false}); }
   onActivated()         { this.state.set({active: true}); }
   onFragmentChange(str) { this.state.set({fragment: str}); }
@@ -49,9 +49,9 @@ class MultiSelectPrivate {
     this.state.set({selectedItems: items});
   }
 
-  // #####################
-  // # Dealing with state change
-  // #####################
+  // --------------------
+  // Dealing with state change
+  // --------------------
   afterStateChange(k, v, mutated) {
     if(['fragment','selectedItems'].includes(k)) {
       this.debounced.updateFilter.trigger();
@@ -66,9 +66,9 @@ class MultiSelectPrivate {
     }
   }
 
-  // #####################
-  // # Main
-  // #####################
+  // --------------------
+  // Main
+  // --------------------
   updateFilter() {
     let {selectable} = this.refs;
     let {fragment, selectedItems} = this.state.get();
@@ -82,9 +82,9 @@ class MultiSelectPrivate {
     });
   }
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
   createElement() {
     if(!this.mountNode) {
       const {onDisactivated, onActivated, onFragmentChange} = this.bound;
@@ -115,9 +115,9 @@ class MultiSelectPrivate {
     return this.mountNode;
   }
 
-  // #####################
-  // # Update View
-  // #####################
+  // --------------------
+  // Update View
+  // --------------------
   updateView() {
 
     let node = this.mountNode;
@@ -142,9 +142,9 @@ class MultiSelectPrivate {
 
 }
 
-// #####################
-// # Utilities
-// #####################
+// --------------------
+// Utilities
+// --------------------
 function setClassName(node, name, isAdded) {
   let classList = node.classList;
   if (!isAdded && classList.contains(name)) {

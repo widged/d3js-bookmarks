@@ -12,17 +12,17 @@ class PageNavigatorPrivate {
     this.state.setInitial({pages: [], activeIdx: 0});
   }
 
-  // #####################
-  // # Public Accessors
-  // #####################
+  // --------------------
+  // Public Accessors
+  // --------------------
   setPages(pages, activeIdx)  {
     if(!pages.includes(activeIdx)) { activeIdx = 0; }
     this.state.set({pages, activeIdx});
   }
 
-  // #####################
-  // # Flow
-  // #####################
+  // --------------------
+  // Flow
+  // --------------------
   onPageClick(e) {
     const {onChange} = this.props;
     if(typeof onChange === 'function') {
@@ -35,9 +35,9 @@ class PageNavigatorPrivate {
     }
   }
 
-  // #####################
-  // # Dealing with state change
-  // #####################
+  // --------------------
+  // Dealing with state change
+  // --------------------
   afterStateChange(k, v, mutated, oldV) {
     if(['pages','activeIdx'].includes(k)) {
       this.updateView();
@@ -45,9 +45,9 @@ class PageNavigatorPrivate {
   }
 
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
   createElement() {
     if(!this.mountNode) {
       var node = document.createElement('page-navigator');
@@ -58,9 +58,9 @@ class PageNavigatorPrivate {
     return this.mountNode;
   }
 
-  // #####################
-  // # Update View
-  // #####################
+  // --------------------
+  // Update View
+  // --------------------
   updateView() {
     let node = this.mountNode;
     let {pages, activeIdx} = this.state.get();

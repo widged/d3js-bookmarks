@@ -11,9 +11,9 @@ class SelectableItemsPrivate {
     this.state.setInitial({ items, filterFn: () => { return true; } });
   }
 
-  // #####################
-  // # Public Accessors
-  // #####################
+  // --------------------
+  // Public Accessors
+  // --------------------
   setItems(_) {
     if(!Array.isArray(_)) { throw new TypeError(`SelectableItems.setItems expects an 'Array' as argument ${_}`); }
     this.state.set({items: _});
@@ -23,18 +23,18 @@ class SelectableItemsPrivate {
     this.state.set({filterFn: _});
   }
 
-  // #####################
-  // # Dealing with state change
-  // #####################
+  // --------------------
+  // Dealing with state change
+  // --------------------
   afterStateChange(k, v, mutated) {
     if(['items', 'filterFn'].includes(k) && mutated) {
       this.updateView();
     }
   }
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
   createElement() {
     if(!this.mountNode) {
       let {onItemSelected} = this.bound;
@@ -48,9 +48,9 @@ class SelectableItemsPrivate {
     return this.mountNode;
   }
 
-  // #####################
-  // # Update View
-  // #####################
+  // --------------------
+  // Update View
+  // --------------------
   updateView() {
     var node = this.mountNode;
     const {items, filterFn} = this.state.get();

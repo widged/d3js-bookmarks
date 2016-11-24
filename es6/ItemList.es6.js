@@ -17,9 +17,9 @@ class ItemList {
 
   setItems(_) { this.state.set({items: _}); }
 
-  // #####################
-  // # Create Element
-  // #####################
+  // --------------------
+  // Create Element
+  // --------------------
   createElement() {
     if(!this.mountNode) {
       let node = document.createElement('item-list');
